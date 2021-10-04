@@ -9,41 +9,40 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Example of R Markdown
+## Wave plot
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+Define a vector called x consisting of a sequence which starts at 0 and goes to 20 in increments of 0.01.
+```{r}
+x <- seq(0, 20, 0.01)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+Next create a vector called y which is of the same length of x and is such that the ith entry of y is equal to the sin function of the ith entry of x.
+```{r}
+y <- sin(x)
 ```
 
-## A Simple Function
-First we create a simple function
-
-```{r function}
-f <- function(z){ return(5 * z ^ 2 + z + cos(15 * z) + 0.3 * sin(300 * z)) }
+Now create a dataframe called “sin_df” with two coloumns: x and y. You can inspect the first few rows of your dataframe with the head() function like this:
+head(sin_df,3)
+```{r}
+sin_df <- data.frame(x, y)
+head(sin_df, 3)
 ```
 
-Then we randomly gnerate some x and set y to be f applied to x
-```{r random generate x and set y}
-x <- runif(100)
-y <- f(x)
+## Including plots
+```{r}
+
+y <- sin(x)
+plot(x, y, type = "b", asp = 4)
 ```
 
-## Including Plots
-we then put x and y together in a data frame df <- data.frame(x, y)
-```{r x_and_y, echo=FALSE}
-plot(x, y)
-```
+## some formulae
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+$y=\sin(x)$
+
+
+\[ \sin(x)=\sum_{n=1}^{\infty}(-1)^{n+1}\cdot \frac{x^{2n-1}}{(2n-1)!}
+\approx x-\frac{x^3}{3!}+\frac{x^5}{5!}-\frac{x^7}{7!}\ldots. \]
+
+
+\[ A=\left(\begin{matrix} a_{11} & a_{12}\\ a_{21} & a_{22} \end{matrix}\right). \]
