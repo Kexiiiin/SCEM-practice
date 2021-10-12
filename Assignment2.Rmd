@@ -1,0 +1,234 @@
+---
+title: "Assignment 2 for Statistical Computing and Empirical Mathods"
+author: "Kexin Wu"
+date: "10/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1 Visualisation
+```{r}
+library(tidyverse)
+library(Stat2Data)
+data("Hawks")
+hawksSmall <- drop_na(select(Hawks, Age, Day, Month, Year, CaptureTime, Species, Wing, Weight, Tail))
+```
+# 1.1 Types of variables
+
+Check how many rows and columns hawksSmall using the dim() function.
+```{r}
+dim(hawksSmall)
+```
+
+Use the head() function to display the top 5 rows of the hawksSmall data frame. 
+```{r}
+head(hawksSmall)
+```
+
+# 1.2 What's wrong with this plot?
+
+The plot is hard to read since the color is similar and the way to present culmen (by size) is a little 
+Easily confused
+
+I think we can use the different shape to show the different culmen instead.
+
+# 1.3 Generate a histogram
+
+Next use a combination of the functions ggplot() and geom_histogram to create a histogram plot of the weights of the Hawks within the hawksSmall data frame with bin widths of 100 grams.
+```{r}
+ggplot(data = hawksSmall, aes(x = Weight)) + xlab("Weight (gm)") +
+  geom_histogram(binwidth = 100) + ylab("Count")
+```
+
+Describe the aesthetic used within this plot: Weight
+
+Which term best describes the shape of the data distribution of Hawk weights: “Unimodal”, “Bimodal” or “Trimodal”? Bimodal
+
+# 1.4 Generate a density plot
+
+Use a combination of the functions ggplot() and geom_density() to create a density plot of the tail lengths of the Hawks within the hawksSmall data frame. 
+
+Recreate your plot with the argument adjust = 0.5 and adjust = 1. Describe the role played by the adjust argument within the geom_density() function.
+```{r}
+ggplot(data = hawksSmall, aes(x = Tail)) + xlab("Tail (mm)") + 
+  geom_density(adjust = 0.5) + ylab("Density")
+ggplot(data = hawksSmall, aes(x = Tail)) + xlab("Tail (mm)") + 
+  geom_density(adjust = 1) + ylab("Density")
+
+```
+
+Create another density plots which including 3 species as 3 different colors
+```{r}
+ggplot(data = hawksSmall, aes(x = Tail, color = Species)) + xlab("Tail (mm)") + 
+  geom_density(adjust = 1) + ylab("Density") 
+```
+
+Create a violin plots which including 3 species as 3 different colors
+```{r}
+ggplot(data = hawksSmall, aes(x = Tail, y = Species, fill = Species)) + xlab("Tail (mm)") + 
+  geom_violin(adjust = 1) + ylab("Density") 
+```
+
+# 1.5 Scatter plots 
+
+Createa a scatter points using the ggplot() and geom_point() functions
+```{r}
+ggplot(data = hawksSmall, aes(x = Tail, color = Species, shape = Species, y = Weight)) + xlab("Tail(mm)") + geom_point() + ylab("Weight")
+```
+
+# 1.6 Trend lines and facet wraps
+
+Generate a plot using the ggplot(), geom_point(), geom_smooth() and facet_wrap() functions.
+```{r}
+ggplot(data = hawksSmall, aes(x = Tail, color = Species, y = Weight)) + xlab("Tail(mm)") + 
+  geom_point() + geom_smooth(method = 'lm') + facet_wrap(~Species) + ylab("Weight(gm)")
+```
+
+## 2 Data wrangling
+
+# 2.1 Select and filter functions
+ Use a combination of the select() and filter() functions to generate a data frame called "hSF" which is a sub-table of the original Hawks data frame with the following characteristics:
+ 
+ 1. Your data frame should include the columns:
+ 
+    a) “Wing”,
+    b) “Weight” 
+    c) “Tail”.
+    
+ 2. Your data frame should contain a row for every hawk such that:
+    a) They belong to the species of Red-Tailed hawks 
+    b) They have weight at least 1kg.
+    
+ Make use of the pipe operator to simplify your code.
+```{r}
+head(hawksSmall)
+hSF <- select(filter(hawksSmall, Species == "RT" & Weight >= 1000), Wing, Weight, Tail)
+head(hSF)
+head(
+  hawksSmall %>%
+    filter(Species == "RT" & Weight >= 1000) %>%
+    select(Wing, Weight, Tail)
+)
+```
+
+# 2.2 The arrange function
+
+ Use the arrange() function to sort the hSF data frame created in the previous section so that the rows appear in order of increasing wing span.
+ 
+ Use the head command to print out the top five rows of your sorted data frame. 
+```{r}
+head(hSF %>%
+       arrange(Wing)
+)
+```
+
+# 2.3 Join and rename functions
+
+ The species of Hawks within the data frame have been indicated via a two letter code. 
+ 
+ Recreate the data frame containing the correspondence between codes and the full species names and give your data frame an appropriate name.
+```{r}
+Species <- unique(hawksSmall$Species)
+species_name_full <- c("Red-tailed", "Cooper's", "Sharp-shinned")
+full_name <- arrange(data_frame(Species, species_name_full), Species)
+full_name
+```
+
+ Use a combination of the functions left_join(), the rename() and the **select()* functions to create a new data frame called “hawksFullName” which is the same as the “Hawks” data frame except that the Species column contains the full names rather than the two letter codes.
+```{r}
+hawksFullName <- hawksSmall %>%
+  left_join(full_name) %>%
+  select(species_name_full, Wing, Weight) %>%
+  rename(Species = species_name_full)
+```
+
+ Use a combination of the head() and select() functions to print out the top seven rows of the columns “Species”, “Wing” and “Weight” of the data frame called “hawksFullName”.
+```{r}
+head(hawksFullName)
+```
+
+# 2.4 The mutate function
+
+ Suppose that the fictitious “Healthy Hawks Society”1 has proposed a new measure called the “bird BMI” which attempts to measure mass of a hawk standardized by their wing span. The bird BMI is equal to the weight of the hawk (in grams) divided by their wing span (in millimeters) squared. That is,
+ 
+ Bird-BMI := 1000 × Weight/Wing-span^2.
+ 
+ Use the mutate(), select() and arange() functions to create a new data frame called “hawksWithBMI” which has the same number of rows as the original Hawks data frame but only two columns - one with their Species and one with their “bird BMI”. The rows should appear in descending order of “bird BMI”. 
+```{r}
+hawksWithBMI <- hawksSmall %>%
+  mutate(bird_BMI = 1000 * Weight / (Wing * Wing)) %>%
+  select(Species, bird_BMI) %>%
+  arrange(desc(bird_BMI))
+head(hawksWithBMI)
+```
+
+ Use the filter() function to remove those cases where the bird BMI exceeds 100 from your data frame. Then generate a violin plot of your data which shows the distribution of “bird BMIs” broken down by species.
+```{r}
+hawksWithBMI %>%
+  filter(bird_BMI > 100)
+
+ggplot(data = hawksWithBMI, aes(x = bird_BMI, y = Species, fill = Species)) + xlab("Bird BMI") + 
+  geom_violin(adjust = 1) + ylab("Species")
+```
+
+# 2.5 Summarize and group-by functions
+
+ Using the dataframe “hawksFullName”, from problem 3 above, in combination with the summarize() and the groupby functions, create a summary table, broken down by Hawk species, which contains the following summary quantities:
+
+1. The number of rows;
+2. The mean average wing span in centimeters;
+3. The median wing span in centimeters;
+4. The trimmed mean average wing span in centimeters (trim=0.1); 5. The mean average of the ratio between wing span and tail length.
+
+```{r}
+hawksFullName <- hawksSmall %>%
+  left_join(full_name) %>%
+  select(species_name_full, Wing, Tail) %>%
+  rename(Species = species_name_full)
+hawksFullName %>%
+  group_by(Species) %>%
+  summarize(
+    num_rows = n(), mn_wing = mean(Wing, na.rm = TRUE), md_wing = median(Wing, na.rm = TRUE), t_mn_wing = median(Wing, na.rm = TRUE, trim = 0.1), tail_wing_ratio = mean(Wing / Tail, na.rm = TRUE)
+  )
+```
+
+ Next create a summary table of the following form: Your summary table will show the number of missing values, broken down by species, for the columns Wing, Weight, Culmen, Hallux, Tail, StandardTail, Tarsus and Crop. You can complete this task by combining the select(), group_by(), summarize(), across(), everything(), sum() and is.na() functions.
+```{r}
+Hawks %>%
+  left_join(full_name) %>%
+  select(species_name_full, Wing, Weight, Culmen, Hallux, Tail, StandardTail, Tarsus, Crop) %>%
+  rename(Species = species_name_full) %>%
+  group_by(Species) %>%
+  summarise(across(everything(), ~sum(is.na(.x))))
+```
+
+## 3 Exploratory data analysis
+
+ We shall now illustrate some concepts from Lecture 5 on Exploratory Data Analysis in the context of our Hawks data set.
+ 
+# 3.1 Combining location estimators with the summarise function
+
+ Use a combination of the summarise(), mean() and median() to compute the sample mean, sample median and trimmed sample mean (with q = 0.1) of the Hawk’s wing length and Hawk’s weight.
+```{r}
+Hawks %>%
+  select(Wing, Weight) %>%
+  summarise(Wing_mean = mean(Wing, na.rm = TRUE), Wing_t_mean = mean(Wing, trim = 0.1, na.rm = TRUE), Wing_med = median(Wing,  na.rm = TRUE), Weight = mean(Weight,  na.rm = TRUE), Weight_t_mean = mean(Weight, trim = 0.1,  na.rm = TRUE), Weight_med = median(Weight,  na.rm = TRUE))
+```
+
+ Combine with the group_by() function to obtain a break down by species.
+```{r}
+Hawks %>%
+  select(Species, Wing, Weight) %>%
+  group_by(Species) %>%
+  summarise(Wing_mean = mean(Wing, na.rm = TRUE), Wing_t_mean = mean(Wing, trim = 0.1, na.rm = TRUE), Wing_med = median(Wing,  na.rm = TRUE), Weight = mean(Weight,  na.rm = TRUE), Weight_t_mean = mean(Weight, trim = 0.1,  na.rm = TRUE), Weight_med = median(Weight,  na.rm = TRUE))
+```
+
+# 3.2 Location and dispersion estimatiors under linear transformations
+ 
+ Suppose that a variable of interest Xi has values X1, . . . , Xn. Suppose that X1, . . . , Xn has sample mean μˆ. Let a, b ∈ R be real numbers and define a new variable X ̃i with values X ̃1,...,X ̃n defined by X ̃i = a·Xi +b fori=1,···,n. ShowthatX ̃1,...,X ̃n hassamplemeana·μˆ+b.
+ 
+ Suppose further that X1, . . . , Xn has sample variance SX2 . What is the sample variance of X ̃1, . . . , X ̃n? What is the sample standard deviation of X ̃1, . . . , X ̃n?
+
