@@ -232,3 +232,120 @@ Hawks %>%
  
  Suppose further that X1, . . . , Xn has sample variance SX2 . What is the sample variance of X ̃1, . . . , X ̃n? What is the sample standard deviation of X ̃1, . . . , X ̃n?
 
+# 3.3 Robustness of location estimators
+
+ In this exercise we shall investigate the robustness of several location estimators: The sample mean, sample median and trimmed mean.
+ 
+ We begin by extracting a vector called "hal" consisting of the talon lengths of all the hawks with any missing values removed.
+```{r}
+hal <- Hawks$Hallux
+hal <- hal[!is.na(hal)]
+```
+
+ To investigate the effect of outliers on estimates of location we generate a new vector called corrupted_hall" with 10 outliers each of value 100 created as follows:
+```{r}
+outlier_val <- 100
+num_outliers <- 10
+corrupted_hal <- c(hal, rep(outlier_val, times = num_outliers))
+```
+
+ We can then compute the mean of the original sample and the corrupted sample as follows:
+```{r}
+mean(hal)
+mean(corrupted_hal)
+```
+
+ Now let's investigate what happens as the number of outliers changes from 0 to 1000. The code below generates a vector called "means_vect" which gives the sample means of corrupted samples with different numbers of outliers. More precisely, mean_vect is a vector of length 1001 with the i-th entry equal to the mean of a sample with i-1 outliers.
+```{r}
+num_outliers_vect <- seq(0, 1000)
+means_vect <- c()
+
+for (num_outliers in num_outliers_vect){
+  corrupted_hal <- c(hal, rep(outlier_val, times = num_outliers))
+  means_vect <- c(means_vect, mean(corrupted_hal))
+}
+
+head(means_vect)
+tail(means_vect)
+```
+
+ Copy and modify the above code to create an additional vector caleed "medians_vect" of length 1001 with the i-th entry equal to the median of a sample "corrupted_hal" with i-1 outliers.
+```{r}
+num_outliers_vect <- seq(0, 1000)
+medians_vect <- c()
+
+for (num_outliers in num_outliers_vect) {
+  corrupted_hal <- c(hal, rep(outlier_val, times = num_outliers))
+  medians_vect <- c(medians_vect, median(corrupted_hal))
+}
+
+head(medians_vect)
+tail(medians_vect)
+```
+
+ Ammend the code further to add an additional vector called "t_means_vect" of length 1001 with the i-th entry equal to the trimmed mean of a sample with i-1 outliers, where the trimmed mean has a trim funtion q = 0.1.
+```{r}
+num_outliers_vect <- seq(0, 1000)
+t_means_vect <- c()
+
+for (num_outliers in num_outliers_vect) {
+  corrupted_hal <- c(hal, rep(outlier_val, times = num_outliers))
+  t_means_vect <- c(t_means_vect, mean(corrupted_hal, trim = 0.1))
+}
+
+head(t_means_vect)
+tail(t_means_vect)
+```
+ 
+ You should now have four vectors: "num_outliers_vect", "means_vect", "medians_vect" and "t_means_vect". Combine these vectors into a data frame with the following code.
+```{r}
+df_means_medians <- data.frame(num_outliers = num_outliers_vect,
+                               mean = means_vect, t_mean = t_means_vect,
+                               median = medians_vect)
+head(df_means_medians)
+tail(df_means_medians)
+```
+
+ Now use the code below to reshape and plot the data. The function pivot_longer() below is used to reshape the data. Don't worry if this operation is unclear at this stage. Its use will be explained soon.
+```{r}
+df_means_medians %>% 
+  pivot_longer(!num_outliers, names_to = "Estimator", values_to = "Value") %>%
+  ggplot(aes(x = num_outliers, color = Estimator, linetype = Estimator, y = Value)) +
+  geom_line() + xlab("Number of outliers")
+```
+
+# 3.4 Box plots and outliiers
+
+ Use the function ggplot() and geom_boxplot() to create a box plot which summarises the distribution of hawk weights broken down by species. 
+```{r}
+ggplot(data = Hawks, aes(y = Weight, x = Species)) + geom_boxplot() 
+```
+
+ Note the outliers displayed as individual dots.
+ 
+ Suppose we have a sample X1, · · · , Xn. Let q25 denote the 0.25-quantile of the sample and let q75 denote the 0.75-quantile of the sample. We can then define the interquartile range, denoted IQR by IQR := q75 − q25. In the context of boxplots and outlier Xi is any numerical value such that the following holds if either of the following holds:
+ 
+     Xi < q25 − 1.5 × IQR 
+     Xi > q75 + 1.5 × IQR.
+     
+ Create a function called “num_outliers” which computes the number of outliers within a sample (with missing values excluded).
+
+```{r}
+outliers <- function(x){
+  q25 <- quantile(x, 0.25, na.rm=1)
+  q75 <- quantile(x, 0.75, na.rm=1)
+  iq_range <- q75 - q25
+  return(x[((x > q75 + 1.5 * iq_range) | (x < q25 - 1.5 * iq_range)) & !is.na(x)])
+}
+num_outliers <- function(x){
+  return(length(outliers(x)))
+}
+```
+
+ Now combine your function num_outliers() with the functions group_by() and summarise() to compute the number of outlier for the three samples of hawk weights broken down by specied.
+```{r}
+Hawks %>%
+  group_by(Species)%>%
+  summarise(num_outliers_weight = num_outliers(Weight))
+  
+```
