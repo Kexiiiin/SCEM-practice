@@ -1,0 +1,239 @@
+---
+title: "Notes of Lecture6"
+author: "Kexin Wu"
+date: "10/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Lecture 6: Tidy data and iteration
+
+# What is tidy data
+
+Two features of tidy data:
+
+1. Each row corresponds to a specific and unique observation representing a similar sort of thing
+
+2. Columns correspond to single vatiables with the same sort of value for each observaion 
+
+# Reshaping data
+ Narrow data to wide data
+ 
+ We can use pivot functions to efficiently reshape our data
+ 
+pivot_wider(names_from = , values_from = )
+
+pivot_longer(cols = c(), names_to = , values_to = )
+
+
+Example: How can we compute the win rate per participant?
+```{r}
+library(tidyverse)
+name = c("Alice", "Bob", "Charlie")
+wins_of_2018 = c(5, 9, 3)
+wins_of_2019 = c(9, 7, 2)
+wins_df_wide <- data.frame(name, wins_of_2018, wins_of_2019) %>%
+  rename('2018' = wins_of_2018, '2019' = wins_of_2019)
+losses_of_2018 = c(7, 15, 12)
+losses_of_2019 = c(8, 4, 10)
+losses_df_wide <- data.frame(name, losses_of_2018, losses_of_2019) %>%
+  rename('2018' = losses_of_2018, '2019' = losses_of_2019)
+
+wins_df_wide
+wins_df_narrow <- wins_df_wide %>%
+   pivot_longer(!name, names_to = "year", values_to = "wins")
+wins_df_narrow
+
+losses_df_wide
+losses_df_narrow <- losses_df_wide %>%
+  pivot_longer(!name, names_to = 'year', values_to = 'losses')
+losses_df_narrow
+
+wins_losses_df <- inner_join(wins_df_narrow, losses_df_narrow) %>%
+  mutate(win_rate = wins / (wins + losses))
+wins_losses_df
+```
+
+# Uniting and seperating data
+ Multiple variables within a column
+```{r}
+wins_over_total_df <- inner_join(wins_df_narrow, losses_df_narrow) %>%
+  mutate(w_over_t = paste(wins, "/", (wins + losses))) %>%
+  select(name, year, w_over_t)
+wins_over_total_df
+
+sep_df <- wins_over_total_df %>%
+  separate(w_over_t, into = c("wins", "totals"), sep = "/")
+sep_df
+# Note, "wins" and "totals" are not numerical variables 
+# Use the convert to convert those string variables into numerical variables
+sep_df <- wins_over_total_df %>%
+  separate(w_over_t, into = c("wins", "totals"), sep = "/", convert = TRUE)
+sep_df
+
+sep_df %>%
+  mutate(losses = totals - wins) %>%
+  select(-totals)
+
+# Unite function
+uni_df <- sep_df %>%
+   unite(w_over_t, wins, totals, sep = "/")
+uni_df
+```
+
+# Iteration
+
+ The standard approach to iteration is through loops e.g. for, while etc.
+ 
+ In R we prefer vectorized and map operations where possible:
+ 
+ 1. Historically, this led to efficiency improvements. However, this is often no longer the case.
+ 
+ 2. Map based approaches are typically more readable. 
+ 
+# The map function
+```{r}
+is_div_2_3 <- function(x) {
+  if (x %% 2 == 0){
+    return(TRUE)
+  } else if(x %% 3 == 0){
+    return(TRUE)
+  } else{
+    return(FALSE)
+  }
+}
+is_div_2_3(3)
+v <- c(1, 2, 3, 4, 5)
+is_div_2_3(v)
+map(v, is_div_2_3)
+```
+ The output of map() is a list of function values.
+
+ The output of map_lgl() is a vector of Booleans.
+```{r}
+map_lgl(v, is_div_2_3)
+```
+ The output of map_dbl() is a vector of doubles.
+```{r}
+example_f <- function(x) {
+  if(is_div_2_3(x)){
+    return(x)
+  } else{
+    return(0)
+  }
+}
+v <- c(1, 2, 3, 4, 5)
+map_dbl(v, example_f)
+```
+ The output of map_chr() is a vector of strings.
+```{r}
+library(english)
+example_f_eng <- function(x){
+  as.character(as.english(example_f(x)))
+}
+v <- c(1, 2, 3, 4, 5)
+map_chr(v, example_f_eng)
+```
+
+# Vectorization
+```{r}
+is_div_2_3_vect <- function(x){
+ return(x %% 2 == 0 | x %% 3 == 0)
+}
+is_div_2_3_vect(v)
+```
+```{r}
+example_f_vect <- function(x){
+  return(x * is_div_2_3_vect(x))
+}
+example_f_vect(v)
+```
+```{r} 
+example_f_eng_vect <- function(x){
+  return(as.english(example_f_vect(v)))
+}
+example_f_eng_vect(v)
+```
+
+# Nesting and unnesting
+```{r}
+musicians <- full_join(band_members, band_instruments)
+musicians
+musicians_nasted <- musicians %>% 
+  group_by(name) %>% 
+  nest()
+musicians_nasted
+musicians_nasted %>% 
+  unnest(cols = data)
+```
+
+ Our goal is to create a function which:
+ 
+ 1) Takes as input a data frame and a variable name
+ 
+ 2) Computes the correlation with all other numeric variables
+ 
+ 3) Returns the name of the variable with maximal absolute correlation, and the corresponding correlation
+ 
+```{r}
+max_cor_var <- function(df, col_name){ # function to determine the variable with maximal correlation
+  v_col <- -df %>% select(all_of(col_name)) # extract variable based on col_name
+  
+  df_num <- -df %>%
+    select_if(is.numeric) %>%
+    select(-all_of(col_name)) # select all numeric variables excluding col_name
+  
+  correlations <- unlist(map(df_num, function(x){
+    cor(x, v_col, use = "complete.obs")
+  })) # compute correlations with all other numeric variable
+  
+  max_abs_cor_var <- names(which(abs(correlations) == max(abs(correlations)))) # extract the variable name
+  cor <- as.double(correlations[max_abs_cor_var]) # compute the correlation
+  
+  return(data.frame(var_name = max_abs_cor_var, cor = cor)) # return dataframe
+}
+
+library(palmerpenguins)
+penguins %>%
+  max_cor_var("body_mass_g")
+
+penguins %>%
+  group_by(species) %>%
+  nest() %>%
+  mutate(max_cor = map(data, ~max_cor_var(.x, "body_mass_g"))) %>%
+  select(-data) %>%
+  unnest(cols = max_cor)
+``` 
+
+# Missing data
+ Missing data is remarkably common in practical Data Science applications.
+ 
+ 1. The value of an indiviudal variable replaced with "NA" (not available).
+  
+ 2. Implicit missing data: Entire rows missing from a data frame.
+ 
+# Making missing data explicit
+
+complete.cases()
+
+filter(complete.cases(.))
+
+# Imputation by mean
+```{r}
+impute_by_mean <- function(x){
+  mu <- mean(x, na.rm = 1) # first compute the mean of x
+  impute_f <- function(z){ # coordinate_wise imputation
+    if(is.na(z)){
+      return(mu) # if z is na replace with mean
+    }else{
+      return(z) # otherwise leave in place
+    }
+  }
+  return(map_dbl(x, impute_f)) # apply the map function to impute across vector
+}
+x <- c(1, 2, NA, 4)
+impute_by_mean(x)
+```

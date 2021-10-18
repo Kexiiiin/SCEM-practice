@@ -103,3 +103,4 @@ cov(penguins$flipper_length_mm, penguins$bill_length_mm, use = "complete.obs")
 
 # The sample correlation give us a way to see how connected two variables or features are
 cor(penguins$flipper_length_mm, penguins$bill_length_mm, use = "complete.obs")
+
