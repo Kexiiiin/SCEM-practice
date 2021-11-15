@@ -1,0 +1,168 @@
+---
+title: "Note of lecture13"
+author: "Kexin Wu"
+date: "14/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Note of lecture 13
+
+```{r}
+library(tidyverse)
+```
+# Bernoulli distribution
+Esmitate q = E(Xi) with the sample mean ...
+
+single sample size
+```{r}
+set.seed(0)
+num_trials <- 1000
+sample_size <- 30
+q <- 0.3
+
+simulation_df <- data.frame(trial = seq(num_trials)) %>%
+  mutate(simulation = map(.x = trial, .f = ~rbinom(sample_size, 1, q))) %>%
+  # simulate sequences of Bernoulli random variables
+  mutate(sample_mean = map_dbl(.x = simulation, .f = mean))
+  # compute the sample means
+
+ggplot() + labs(x = "Mean", y = "Density") + theme_bw() + 
+  geom_density(data = simulation_df, 
+               aes(x = sample_mean, color = "Sample",
+                   linetype = "Sample")) + 
+  # kernel density plot of sample means
+  geom_vline(aes(xintercept = q, color = "Population",
+                 linetype = "Population")) + 
+  # vertical line displaying population mean
+  scale_color_manual(name = "legend",
+                     values = c("Sample" = "red", "Population" = "blue")) +
+  scale_linetype_manual(name = "Legend",
+                        values = c("Sample" = "solid", "Population" = "dashed"))
+```
+
+varing sample size
+```{r}
+set.seed(0)
+num_trials_per_sample_size <- 10
+max_sample_size <- 10000
+q <- 0.3
+
+sim_by_n_df <- crossing(trial = seq(num_trials_per_sample_size),
+                        sample_size = seq(to = sqrt(max_sample_size), by = 0.1) ** 2) %>%
+  #create data frame of all pairs of sample_size and trial
+  mutate(simulation = pmap(.l = list(trial, sample_size), .f = ~rbinom(.y, 1, q))) %>%
+  #simulate sequences of Bernoulli random variables
+  mutate(sample_mean = map_dbl(.x = simulation, .f = mean))
+  # compute the sample means
+
+ggplot() + labs(x = "Sample size", y = "Mean") + theme_bw() + 
+  geom_point(data = sim_by_n_df, 
+               aes(x = sample_size, y = sample_mean, color = "Sample",
+                   linetype = "Sample"), size = 0.1) + 
+  # scatter plot of sample means
+  geom_hline(aes(yintercept = q, color = "Population",
+                 linetype = "Population"), size = 1) + 
+  # hrizontal line displaying population mean
+  scale_color_manual(name = "legend",
+                     values = c("Sample" = "blue", "Population" = "red")) +
+  scale_linetype_manual(name = "Legend",
+                        values = c("Sample" = "dashed", "Population" = "solid")) + 
+  scale_x_sqrt()
+```
+
+# Gaussian distribution
+Single sample size
+```{r}
+set.seed(0)
+num_tirals <- 1000
+sample_size <- 30
+mu <- 1
+sigma_sqr <- 3
+
+simulation_df <- data.frame(trial = seq(num_tirals)) %>%
+  mutate(simulation = map(.x = trial, 
+                          .f = ~rnorm(sample_size, mean = mu, sd = sqrt(sigma_sqr)))) %>%
+  # simulate sequences of Gaussian random variables
+  mutate(sample_var = map_dbl(.x = simulation, .f = var))
+  # compute the sample variances
+
+ggplot() + labs(x = "Variance", y = "Density") + theme_bw() + 
+  geom_density(data = simulation_df,
+               aes(x = sample_var, color = "Sample",
+                   linetype = "Sample")) + 
+  # kernal density plt of sample variances
+  geom_vline(aes(xintercept = sigma_sqr, color = "Population", 
+                 linetype = "Population")) + 
+  # vertical line displaying population mean
+  scale_color_manual(name = "Legend",
+                     values = c("Sample" = "red", "Population" = "blue")) + 
+  scale_linetype_manual(name = "Legend",
+                        values = c("Sample" =  "solid", "Population" = "dashed"))
+```
+
+Vary the sample size
+```{r}
+set.seed(0)
+num_trials_per_sample_size <- 10
+max_sample_size <- 10000
+mu <- 1
+sigma_sqr <- 3
+
+sim_by_n_df <- crossing(trial = seq(num_trials_per_sample_size),
+                        sample_size = seq(to = sqrt(max_sample_size), by = 0.1) ** 2) %>%
+  # create data frame of all pairs of sample_size and trial
+  mutate(simulation = pmap(.l = list(trial, sample_size),
+                           .f = ~rnorm(.y, mean = mu, sd = sqrt(sigma_sqr)))) %>%
+  # simulate sequences of Gaussian random variables
+  mutate(sample_var = map_dbl(.x = simulation, .f = var))
+  # compute the sample variances
+
+ggplot() + labs(x = "Sample_size", y = "Variance") + theme_bw() + 
+  geom_point(data = sim_by_n_df,
+               aes(x = sample_size, y = sample_var, color = "Sample",
+                   linetype = "Sample"), size = 0.1) + 
+  # scatter plot of sample variances
+  geom_hline(aes(yintercept = sigma_sqr, color = "Population", 
+                 linetype = "Population"), size = 1) + 
+  # horizontal line displaying population variance
+  scale_color_manual(name = "Legend",
+                     values = c("Sample" = "blue", "Population" = "red")) + 
+  scale_linetype_manual(name = "Legend",
+                        values = c("Sample" =  "dashed", "Population" = "solid")) + 
+  scale_x_sqrt()
+```
+
+# The Cauchy distribution
+```{r}
+set.seed(0)
+num_trials_per_sample_size <- 10
+max_sample_size <- 10000
+theta <- 1
+
+sim_by_n_df <- crossing(trial = seq(num_trials_per_sample_size),
+                        sample_size = seq(to = sqrt(max_sample_size), by = 0.1) ** 2) %>%
+  # create data frame of all pairs of sample_size and trial
+  mutate(simulation = pmap(.l = list(trial, sample_size), .f = ~rcauchy(.y, location = theta))) %>%
+  # simulate sequences of Cauchy random variables
+  mutate(sample_median = map_dbl(.x = simulation, .f = median))
+  # compute the sample median
+
+ggplot() + labs(x = "Sample size", y = "Sample median") + theme_bw() + 
+  geom_point(data = sim_by_n_df,
+               aes(x = sample_size, y = sample_median, color = "Sample median",
+                   linetype = "Sample median"), size = 0.1) + 
+  # scatter plot of sample variances
+  geom_hline(aes(yintercept = theta, color = "Location parameter", 
+                 linetype = "Location parameter"), size = 1) + 
+  # horizontal line displaying population variance
+  scale_color_manual(name = "Legend",
+                     values = c("Sample median" = "blue", "Location parameter" = "red")) + 
+  scale_linetype_manual(name = "Legend",
+                        values = c("Sample median" =  "dashed", "Location parameter" = "solid")) + 
+  scale_x_sqrt()
+```
+
