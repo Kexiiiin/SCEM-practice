@@ -1,0 +1,40 @@
+---
+title: "Note of Lecture14"
+author: "Kexin Wu"
+date: "16/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Note of lecture14
+```{r}
+library(tidyverse)
+```
+
+Maximum likelihood simulation
+```{r}
+mu <- 1 # choose a mean
+sigma <- 2 # choose a standard deviation
+x <- seq(mu - 3 * sigma, mu + 3 * sigma, sigma * 0.01) # generate some x indicies
+df_gaussian <- data.frame(x, Density = dnorm(x, mean = mu, sd = sigma), Source = "Population") # df with the population density
+df_gaussian %>% ggplot(aes(x = x, y = Density, color = Source)) + geom_line() + ylab("Density function") + theme_bw() # plot
+```
+
+We can generate simulated data from a Gaussian distribution to test the MLE method
+```{r}
+set.seed(123) # choose a random seed for reproducibility
+
+sample_size <- 100 # choose a sample size
+sample_data <- rnorm(sample_size, mu, sigma) # generate some random data
+
+mu_mle <- mean(sample_data)
+sigma_mle <- sd(sample_data) * sqrt((sample_size - 1) / sample_size) 
+
+df_gaussian <- df_gaussian %>%
+  rbind(data.frame(x, Density = dnorm(x, mean = mu_mle, sd = sigma_mle), Source = "MLE estimate")) # add in mle density
+
+df_gaussian %>% ggplot(aes(x = x, y = Density, color = Source)) + geom_line() + ylab("Density funtion") + theme_bw() # plot
+```

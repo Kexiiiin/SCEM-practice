@@ -1,0 +1,21 @@
+---
+title: "Assignment9"
+author: "Kexin Wu"
+date: "01/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assignment 9
+
+## 1. Basic concepts in classification
+
+Write down your explanation of each of the following concepts. Give an example where appropriate.
+
+1. A classification rule
+   
+   A classification rule is a  procedure by which the elements of the population set are each predicted to belong to one of the classes. For the classification of chickens and ducks, the classification rule can be made their beaks, the pointed ones being chickens and the flat ones being ducks.
+
