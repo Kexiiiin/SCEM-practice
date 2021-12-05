@@ -32,7 +32,7 @@ Answer:
 First, we compute $\mathbb{P}(B)$:
 
 
-$$\mathbb{P}(B) = \mathbb{P}({B}\bigcap{A}) + \mathbb{P}({B}\bigcap{A^c})
+$$\mathbb{P}(B) = \mathbb{P}({B}\cap{A}) + \mathbb{P}({B}\cap{A^c})
      = \mathbb{P}({B}\mid{A})\mathbb{P}(A) + \mathbb{P}({B}\mid{A^c})\mathbb{P}(A^c)
      = 0.8 * 0.9 + {1 - \mathbb{P}({B^c}\mid{A^c})}\mathbb{P}(A^c)
      = 0.72 + 0.025 = 0.745$$
@@ -53,22 +53,22 @@ about when $\mathbb{P}(A \backslash B) = 0$?
 *(A1)* If 
 $$\mathbb{P}(A \backslash B) = 0$$
 Then,
- $$\mathbb{P}(A) = \mathbb{P}(A \bigcap {B}) + \mathbb{P}(A \bigcap {B^c})
- = \mathbb{P}(A \bigcap {B}) + \mathbb{P}(A \backslash {B})
- = \mathbb{P}(A \bigcap {B})$$
+ $$\mathbb{P}(A) = \mathbb{P}(A \cap {B}) + \mathbb{P}(A \cap {B^c})
+ = \mathbb{P}(A \cap {B}) + \mathbb{P}(A \backslash {B})
+ = \mathbb{P}(A \cap {B})$$
  
  Hence, 
- $$\mathbb{P}(A \mid B) = \frac{\mathbb{P}(A \bigcap {B})}{\mathbb{P}(B)} = \frac{\mathbb{P}(A)}{\mathbb{P}(B)}$$.
+ $$\mathbb{P}(A \mid B) = \frac{\mathbb{P}(A \cap {B})}{\mathbb{P}(B)} = \frac{\mathbb{P}(A)}{\mathbb{P}(B)}$$.
 
 ------
 
-*(Q2)* Suppose that $A$, $B$ $\in$ $\varepsilon$ with $A \bigcap B=\phi$. Give an 
-expression for $\mathbb{P}({A}\mid{B})$. What about when $\mathbb{P}(A\bigcap{B}) = 0$? 
+*(Q2)* Suppose that $A$, $B$ $\in$ $\varepsilon$ with $A \cap B=\phi$. Give an 
+expression for $\mathbb{P}({A}\mid{B})$. What about when $\mathbb{P}(A\cap{B}) = 0$? 
 
 *(A2)*  If 
-$$\mathbb{P}(A \bigcap {B}) = 0$$
+$$\mathbb{P}(A \cap {B}) = 0$$
 Then,
-$$\mathbb{P}(A \mid {B}) = \frac{\mathbb{P}(A \bigcap {B})}{\mathbb{P}(B) }= 0$$
+$$\mathbb{P}(A \mid {B}) = \frac{\mathbb{P}(A \cap {B})}{\mathbb{P}(B) }= 0$$
 
 ------
 
@@ -78,51 +78,51 @@ expression for $\mathbb{P}(A\mid{B})$. What about when $\mathbb{P}(B \backslash 
 *(A3)*  If 
 $$\mathbb{P}(B \backslash A) = 0$$
 Then,
-$$\mathbb{P}(A^c \bigcap {B}) = 0$$
+$$\mathbb{P}(A^c \cap {B}) = 0$$
  
 Hence, 
-$$\mathbb{P}(B) = \mathbb{P}(A \bigcap {B}) + \mathbb{P}(A^c \bigcap {B}) = \mathbb{P}(A \bigcap {B})$$
+$$\mathbb{P}(B) = \mathbb{P}(A \cap {B}) + \mathbb{P}(A^c \cap {B}) = \mathbb{P}(A \cap {B})$$
 And,
-$$\mathbb{P}(A \mid B) = \frac{\mathbb{P}(A \bigcap {B})}{\mathbb{P}(B)} = \frac{\mathbb{P}(B)}{\mathbb{P}(B)} = 1$$
+$$\mathbb{P}(A \mid B) = \frac{\mathbb{P}(A \cap {B})}{\mathbb{P}(B)} = \frac{\mathbb{P}(B)}{\mathbb{P}(B)} = 1$$
 
 ------
 
-*(Q4)* Q.Suppose that $A \in \varepsilon$. Give an expression for $\mathbb{P}(A \mid \Omega)$ in terms of $\mathbb{P}(A)$.
+*(Q4)* Suppose that $A \in \varepsilon$. Give an expression for $\mathbb{P}(A \mid \Omega)$ in terms of $\mathbb{P}(A)$.
 
-*(A4)*  In this case, we have $A \subseteq \Omega$ and $\mathbb{P}(\Omega) = 1$, 
+*(A4)* In this case, we have $A \subseteq \Omega$ and $\mathbb{P}(\Omega) = 1$, 
 So,
 $$\mathbb{P}(A \mid \Omega) = \frac{\mathbb{P}(A)}{\mathbb{P}(\Omega)} = \mathbb{P}(A)$$
 
 ------
 
-*(Q5)* Q.Show that given three events $A$, $B$, $C$ $\in \varepsilon$, we have $\mathbb{P}(A \bigcap {B} \bigcap {C}) = \mathbb{P}(A \mid {B} \bigcap {C}) \cdot \mathbb{P}(B \mid {C}) \cdot \mathbb{P}(C)$.
+*(Q5)* Show that given three events $A$, $B$, $C$ $\in \varepsilon$, we have $\mathbb{P}(A \bigcap {B} \bigcap {C}) = \mathbb{P}(A \mid {B} \bigcap {C}) \cdot \mathbb{P}(B \mid {C}) \cdot \mathbb{P}(C)$.
 
-*(A5)*  $$\mathbb{P}(A \bigcap {B} \bigcap {C}) = \mathbb{P}(A \bigcap (B \bigcap C)
-= \mathbb{P}(A \mid (B \bigcap C)) \cdot \mathbb{P}(B \bigcap C)
-= \mathbb{P}(A \mid (B \bigcap C)) \cdot \mathbb{P}(B \mid C) \cdot \mathbb{P}(C)$$
+*(A5)*  $$\mathbb{P}(A \cap {B} \cap {C}) = \mathbb{P}(A \cap (B \cap C)
+= \mathbb{P}(A \mid (B \cap C)) \cdot \mathbb{P}(B \cap C)
+= \mathbb{P}(A \mid (B \cap C)) \cdot \mathbb{P}(B \mid C) \cdot \mathbb{P}(C)$$
 
 ------
 
-*(Q6)* Q.Show that given three events $A$, $B$, $C \in \varepsilon$ we have $\mathbb{P}(A \mid B \bigcap C) = \frac{\mathbb{P}(B \mid A \bigcap C) \cdot \mathbb{P}(A \mid C)}{\mathbb{P}(B \mid C)}$.
+*(Q6)* Show that given three events $A$, $B$, $C \in \varepsilon$ we have $\mathbb{P}(A \mid B \cap C) = \frac{\mathbb{P}(B \mid A \cap C) \cdot \mathbb{P}(A \mid C)}{\mathbb{P}(B \mid C)}$.
 
 *(A6)*  First, we compute the left part of the formula that 
-$$\mathbb{P}(A \mid B \bigcap C) = \frac{\mathbb{P}(A \bigcap B \bigcap C)}{\mathbb{P}(B \bigcap C)}$$
+$$\mathbb{P}(A \mid B \cap C) = \frac{\mathbb{P}(A \cap B \cap C)}{\mathbb{P}(B \cap C)}$$
 
    Then, we compute the right part, since that 
-   $$\mathbb{P}(A \mid C) = \frac{\mathbb{P}(A \bigcap C)}{\mathbb{P}(C)}$$
+   $$\mathbb{P}(A \mid C) = \frac{\mathbb{P}(A \cap C)}{\mathbb{P}(C)}$$
    And,
-   $$\mathbb{P}(B \mid C) = \frac{\mathbb{P}(B \bigcap C)}{\mathbb{P}(C)}$$
+   $$\mathbb{P}(B \mid C) = \frac{\mathbb{P}(B \cap C)}{\mathbb{P}(C)}$$
    
    So,
-   $$\frac{\mathbb{P}(B \mid A \bigcap C) \cdot \mathbb{P}(A \mid C)}{ \mathbb{P}(B \mid C)}
-   = \frac{\mathbb{P}(B \mid A \bigcap C) \cdot \mathbb{P}(A \bigcap C)}{\mathbb{P}(B \bigcap C)}$$
+   $$\frac{\mathbb{P}(B \mid A \cap C) \cdot \mathbb{P}(A \mid C)}{ \mathbb{P}(B \mid C)}
+   = \frac{\mathbb{P}(B \mid A \cap C) \cdot \mathbb{P}(A \cap C)}{\mathbb{P}(B \cap C)}$$
    
    Hence,
-   $$\mathbb{P}(B \mid A \bigcap C) \cdot \mathbb{P}(A \bigcap C) = \mathbb{P}(A \bigcap B \bigcap C)$$
+   $$\mathbb{P}(B \mid A \cap C) \cdot \mathbb{P}(A \cap C) = \mathbb{P}(A \cap B \cap C)$$
    
-   $$\frac{\mathbb{P}(B \mid A \bigcap C) \cdot \mathbb{P}(A \mid C)}{\mathbb{P}(B \mid C)}
-   = \frac{\mathbb{P}(A \bigcap B \bigcap C)}{\mathbb{P}(B \bigcap C)}
-   = \mathbb{P}(A \mid B \bigcap C)$$
+   $$\frac{\mathbb{P}(B \mid A \cap C) \cdot \mathbb{P}(A \mid C)}{\mathbb{P}(B \mid C)}
+   = \frac{\mathbb{P}(A \cap B \cap C)}{\mathbb{P}(B \cap C)}
+   = \mathbb{P}(A \mid B \cap C)$$
    
 
 ### 3 Sampling with replacement
@@ -378,7 +378,8 @@ prob_missing_simulation <- mean(sampling_without_replacement_simulation %>%
 
 ```
 
-*(Q)* The next part of the question is more challenging and may be omitted if you
+*(Q)* 
+The next part of the question is more challenging and may be omitted if you
 are short on time.
 (*) Once you have a simulation based answer you can try and use “combinations” 
 with $\binom{n}{k}$ to compute the k probability directly. First aim and compute 
@@ -389,6 +390,165 @@ combine with the formula for the total number of subsets of size 10 from a set o
 to compute the probability of missing a colour.
 
 *(A)*
+ We first compute the number of subsets of size 10 containing no reds, no blues and no greens:
+ 
+ 1. N~R~ - The number of subsets with no reds is $\binom{50}{10}$
+ 2. N~B~ - The number of subsets with no blues is $\binom{70}{10}$
+ 3. N~G~ - The number of subsets with no greens is $\binom{80}{10}$
+ 
+ Next we count the number of all red, all blue, and all green:
+ 
+ 1. M~R~ - The number of subsets with all reds is $\binom{50}{10}$
+ 2. M~B~ - The number of subsets with all blues is $\binom{30}{10}$
+ 3. M~G~ - The number of subsets with all greens is $\binom{20}{10}$
+ 
+ Now the total number of subsets with a missing colour is
+ $$Q = (N_R + N_B + N_G) - (M_R + M_B + M_G)$$
+ The total of subsets of size 10 from a collection of a 100 is $T = \binom{100}{10}$.
+ 
+ Dividing by the total number of subsets gives us the probability $Q / T \approx 0.118$
+
+```{r}
+NR = choose(total - num_red, sample_size)
+NB = choose(total - num_blue, sample_size)
+NG = choose(total - num_green, sample_size)
+
+MR = choose(num_red, sample_size)
+MB = choose(num_blue, sample_size)
+MG = choose(num_green, sample_size)
+
+Q = (NR + NB + NG) - (MR + MB + MG)
+TS = choose(total, sample_size)
+
+prob_missing_theory = Q / TS
+
+prob_missing_simulation
+
+prob_missing_theory
+```
+
+### 5 Mutual independence and pair-wise independent
+
+Consider a simple probability space $(\Omega, \varepsilon, \mathbb{P})$ with $\Omega = \{(0, 0, 0), (0, 1, 1), (1, 0, 1), (1, 1, 0)\}$.
+
+Since $(\Omega, \varepsilon, \mathbb{P})$ is a simple probability space containing four elements we have
+
+$$ \mathbb{P}(\{(0, 0, 0\}) = \mathbb{P}(\{(0, 1, 1\}) = \mathbb{P}(\{(1, 0, 1\}) = \mathbb{P}(\{(1, 1, 0\}) = \frac{1}{4}$$
+Consider the events $A := \{(1, 0, 1), (1, 1, 0)\}$, $B :=  \{(0, 1, 1), (1, 1, 0)\}$ and $C := \{(0, 1, 1), (1, 0, 1)\}$.
+
+*(Q)* Verify that $\mathbb{P}(A \cap B) = \mathbb{P}(A) \cdot \mathbb{P}(B)$, 
+$\mathbb{P}(A \cap C) = \mathbb{P}(A) \cdot \mathbb{P}(C)$ and  
+$\mathbb{P}(B \cap C) = \mathbb{P}(B) \cdot \mathbb{P}(C)$. 
+Hence, we deduce that the events $A$, $B$, $C$ are pair-wise indepenent.
+
+*(A)* Since, $$A \cap B = \{(1, 0, 1\}, A \cap C = \{(1, 0, 1\}, B \cap C =  \{(0, 1, 1\}$$
+So, $$\mathbb{P}(A \cap B) = \frac{1}{4} = \mathbb{P}(A) \cdot \mathbb{P}(B)$$
+$$\mathbb{P}(A \cap C) = \frac{1}{4} = \mathbb{P}(A) \cdot \mathbb{P}(C)$$
+$$\mathbb{P}(B \cap C) = \frac{1}{4} = \mathbb{P}(B) \cdot \mathbb{P}(C)$$
+
+*(Q)* What is $A \cap B \cap C$? What is $\mathbb{P}(A \cap B \cap C)$
+
+*(A)* Since, $$A \cap B \cap C = \phi$$
+So, $$\mathbb{P}(A \cap B \cap C) = 0$$
+
+*(Q)* Are the events $A$, $B$, $C$ mutually independent?
+
+*(A)* Since,$$\mathbb{P}(A) \cdot \mathbb{P}(B) \cdot \mathbb{P}(C) = \frac{1}{2} \cdot \frac{1}{2} \cdot \frac{1}{2} = \frac{1}{8}$$
+We have, $$\mathbb{P}(A \cap B \cap C) = 0 \neq \frac{1}{8} = \mathbb{P}(A) \cdot \mathbb{P}(B) \cdot \mathbb{P}(C)$$
+Hence, these events cannot be mutually independent.
+
+
+### 6 The Monty hall problem (*)
+Consider the following game:
+
+At a game show there are three seemingly identical doors. Behind one of the doors 
+is a car, and behind the remaining two is a goat. The contestant of the game first 
+gets to choose one of the three doors. The host then opens one of the other two 
+doors to reveal a goat. The contestant now get’s a chance to either (a) switch 
+their choice to the other unopened door or (b) stick to their original choice. 
+The host then opens the door corresponding to the contestant’s final choice. They 
+get to keep whatever is behind their final choice of door.
+
+Does the contestant improve their chances of winning the car if they switch their 
+choice? For clarity, we make the following assumptions:
+
+1. The car is assigned to one of the doors at random with equal probability for 
+each door.
+2. The assignment of the car and the initial choice of the contestant are independent.
+3. Once the contestant makes their initial choice, the host always opens a door 
+which (a) has a goat behind it and (b) is not the contestant’s initial choice. 
+If there is more than one such door (i.e. when the contestant’s initial choice 
+corresponds to the door with a car behind it) the host chooses at random from the
+two possibilities with equal probability.
+
+To formalise our problem we introduce the following events for $i$ = 1, 2, 3:
+
+- $A_i$ denotes event car is placed behind the $i$-th door;
+- $B_i$ denotes event contestant initially chooses the $i$-th door;
+- $C_i$ denotes event the host opens the $i$-th door to reveal a goat.
+
+*(Q)* Consider a situation in which the contestant initially selects the first 
+door ($B1$) and then the host opens the second door to reveal a goat ($C2$). What is 
+$\mathbb{P}(A3 \mid B1 \cap C2)$?
+
+*(A)*
+We first compute $\mathbb{P}(A_3 \mid B_1 \cap C_2)$, which is:
+$$
+\mathbb{P}(A_3 \mid B_1 \cap C_2) = \frac{\mathbb{P}(C_2 \cap A_3 \cap B_1)}{\mathbb{P}(C_2 \cap B_1)}
+= \frac{\mathbb{P}(C_2 \mid A_3 \cap B_1) \cdot \mathbb{P}(A_3 \cap B_1)}{\mathbb{P}(C_2 \cap B_1)}
+= \frac{\mathbb{P}(C_2 \mid A_3 \cap B_1) \cdot \mathbb{P}(A_3 \mid B_1)}{\mathbb{P}(C_2 \mid B_1)}
+$$
+And we shall use the above formula.
+
+To evaluate this expression we first need to compute $\mathbb{P}(C_2 \mid B_1)$:
+
+
+$\mathbb{P}(C_2 \mid B_1) = \frac{\mathbb{P}(C_2 \cap B_1)}{\mathbb{P}(B_1)}$
+
+$\qquad \qquad \; = \frac{\mathbb{P}(A_1 \cap C_2 \cap B_1) + \mathbb{P}(A_2 \cap C_2 \cap B_1) + \mathbb{P}(A_3 \cap C_2 \cap B_1)}{\mathbb{P}(B_1)}$
+
+$\qquad \qquad \; = \frac{\mathbb{P}(A_1 \mid C_2 \cap B_1) \cdot \mathbb{P}(A_1 \cap B_1) + \mathbb{P}(A_2 \mid C_2 \cap B_1) \cdot \mathbb{P}(A_2 \cap B_1) + \mathbb{P}(A_3 \mid C_2 \cap B_1) \cdot \mathbb{P}(A_3 \cap B_1)}{\mathbb{P}(B_1)}$
+
+$\qquad \qquad \; = \mathbb{P}(C_2 \mid A_1 \cap B_1) \cdot \mathbb{P}(A_1) + \mathbb{P}(C_2 \mid A_2 \cap B_1) \cdot \mathbb{P}(A_2) + \mathbb{P}(C_2 \mid A_3 \cap B_1) \cdot \mathbb{P}(A_3)$
+
+$\qquad \qquad \; = \frac{1}{3} \cdot \{\mathbb{P}(C_2 \mid A_1 \cap B_1) + \mathbb{P}(C_2 \mid A_2 \cap B_1) + \mathbb{P}(C_2 \mid A_3 \cap B_1)\}$
+
+$\qquad \qquad \; = \frac{1}{3} \cdot (\frac{1}{2} + 0 + 1) = \frac{1}{2}$
+
+And we have $\mathbb{P}(C_2 \mid A_3 \cap B_1) = 1$, 
+
+By using the independence of the choice of the door for the car and the contestnt's initial choice,
+combined with the fact that the initial assignment of the car is random with equal probabilities,
+we have $\mathbb{P}(A_3 \mid B_1) = \mathbb{P}(A_3) = \frac{1}{3}$.
+
+Hence, we have
+$$
+\mathbb{P}(A_3 \mid B_1 \cap C_2) = = \frac{\mathbb{P}(C_2 \mid A_3 \cap B_1) \cdot \mathbb{P}(A_3 \mid B_1)}{\mathbb{P}(C_2 \mid B_1)} = \frac{1 \cdot \frac{1}{3}}{\frac{1}{2}} = \frac{2}{3}
+$$
+
+*(Q)* What does this suggest about a good strategy? Should we switch choices?
+
+*(A)* By the same argument we obtain $\mathbb{P}(A_{i_3} \mid B_{i_1} \cap C_{i_2}) = \frac{2}{3}$
+for any $i_1, i_2, i_3 \in \{1,2,3\}$ such that $\{i_1,i_2,i_3\} = \{1,2,3\}$. 
+Hence, the contestant always increases their chances by switching choice (from $i_1$ to $i_3$).
+
+
+### 7 A game of marbles (**)
+
+This question is left as an optional challenge for those who have completed all 
+remaining questions.
+
+Suppose there two players - $A$ and $B$. Player $A$ has $n$ marbles and player $B$ 
+has $k − n$ marbles $(n \leq k)$, so the two players have $k$ marbles between them. 
+The game proceeds through a series of rounds. In each round $A$ has probability $p$ 
+of winning the round, and $B$ has probability $1 − p$ of winning the round, where 
+$p \in (0, 1/2)$ is a fixed number. If $A$ wins a round then $B$ must give $A$ 
+one of his marbles. If $B$ wins the round then $A$ must give $B$ one of his marbles. 
+All of the rounds are independent from one another. A player wins the entire 
+game of marbles when they have all $k$ marbles, and the other player has none.
+
+*(Q)* Can you give a formula for the probability that player $A$ wins the game 
+in terms of $n$ and $k$ and $p$?
 
 
 
