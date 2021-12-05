@@ -1,0 +1,395 @@
+---
+title: "Assignment4"
+author: "Kexin Wu"
+date: "04/12/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Assignment 4 for Statistical Computing and Empirical Mathods
+
+### 1 Bayes theorem
+
+ Let $A$ be the event that it rains next week and $B$ the event that the weather
+forecaster predicts that there will be rain next week. Let’s suppose that the 
+probability of rain next week is  $\mathbb{P}(A) = 0.9$. Suppose also that the 
+conditional probability that there is a forecast of rain, given that it really does 
+rain, is $\mathbb{P}(B\mid{A}) = 0.8$. On the other hand, the conditional 
+probability that there is a forecast of dry weather, given that there really 
+isn’t any rain is $\mathbb{P}(B^c \mid {A^c}) = 0.75$.
+ 
+Now suppose that there is a forecast of rain. What is the conditional probability 
+of rain, given the forecast of rain $\mathbb{P}(A\mid{B})$?
+
+Answer:
+
+First, we compute $\mathbb{P}(B)$:
+
+
+$$\mathbb{P}(B) = \mathbb{P}({B}\bigcap{A}) + \mathbb{P}({B}\bigcap{A^c})
+     = \mathbb{P}({B}\mid{A})\mathbb{P}(A) + \mathbb{P}({B}\mid{A^c})\mathbb{P}(A^c)
+     = 0.8 * 0.9 + {1 - \mathbb{P}({B^c}\mid{A^c})}\mathbb{P}(A^c)
+     = 0.72 + 0.025 = 0.745$$
+     
+We then apply Bayes theorem:
+
+$$\mathbb{P}({A}\mid{B}) = \frac{\mathbb{P}(A)\mathbb{P}({B}\mid{A})}{\mathbb{P}(B}) = \frac{0.9 * 0.8}{0.745} \approx 0.966$$
+
+       
+### 2 Conditional probabilities
+
+Suppose we have a probability space ($\Omega$, $\varepsilon$, $\mathbb{P}$).
+
+*(Q1)* Suppose that $A$, $B$ $\in$ $\varepsilon$ and $A \subseteq B$. Give an 
+expression for $\mathbb{P}({A}\mid{B})$ in terms of $P(A)$ and $P(B)$. What
+about when $\mathbb{P}(A \backslash B) = 0$?
+
+*(A1)* If 
+$$\mathbb{P}(A \backslash B) = 0$$
+Then,
+ $$\mathbb{P}(A) = \mathbb{P}(A \bigcap {B}) + \mathbb{P}(A \bigcap {B^c})
+ = \mathbb{P}(A \bigcap {B}) + \mathbb{P}(A \backslash {B})
+ = \mathbb{P}(A \bigcap {B})$$
+ 
+ Hence, 
+ $$\mathbb{P}(A \mid B) = \frac{\mathbb{P}(A \bigcap {B})}{\mathbb{P}(B)} = \frac{\mathbb{P}(A)}{\mathbb{P}(B)}$$.
+
+------
+
+*(Q2)* Suppose that $A$, $B$ $\in$ $\varepsilon$ with $A \bigcap B=\phi$. Give an 
+expression for $\mathbb{P}({A}\mid{B})$. What about when $\mathbb{P}(A\bigcap{B}) = 0$? 
+
+*(A2)*  If 
+$$\mathbb{P}(A \bigcap {B}) = 0$$
+Then,
+$$\mathbb{P}(A \mid {B}) = \frac{\mathbb{P}(A \bigcap {B})}{\mathbb{P}(B) }= 0$$
+
+------
+
+*(Q3)* Suppose that $A$, $B$ $\in$ $\varepsilon$ with $B \subseteq A$. Give an 
+expression for $\mathbb{P}(A\mid{B})$. What about when $\mathbb{P}(B \backslash A) = 0$?
+
+*(A3)*  If 
+$$\mathbb{P}(B \backslash A) = 0$$
+Then,
+$$\mathbb{P}(A^c \bigcap {B}) = 0$$
+ 
+Hence, 
+$$\mathbb{P}(B) = \mathbb{P}(A \bigcap {B}) + \mathbb{P}(A^c \bigcap {B}) = \mathbb{P}(A \bigcap {B})$$
+And,
+$$\mathbb{P}(A \mid B) = \frac{\mathbb{P}(A \bigcap {B})}{\mathbb{P}(B)} = \frac{\mathbb{P}(B)}{\mathbb{P}(B)} = 1$$
+
+------
+
+*(Q4)* Q.Suppose that $A \in \varepsilon$. Give an expression for $\mathbb{P}(A \mid \Omega)$ in terms of $\mathbb{P}(A)$.
+
+*(A4)*  In this case, we have $A \subseteq \Omega$ and $\mathbb{P}(\Omega) = 1$, 
+So,
+$$\mathbb{P}(A \mid \Omega) = \frac{\mathbb{P}(A)}{\mathbb{P}(\Omega)} = \mathbb{P}(A)$$
+
+------
+
+*(Q5)* Q.Show that given three events $A$, $B$, $C$ $\in \varepsilon$, we have $\mathbb{P}(A \bigcap {B} \bigcap {C}) = \mathbb{P}(A \mid {B} \bigcap {C}) \cdot \mathbb{P}(B \mid {C}) \cdot \mathbb{P}(C)$.
+
+*(A5)*  $$\mathbb{P}(A \bigcap {B} \bigcap {C}) = \mathbb{P}(A \bigcap (B \bigcap C)
+= \mathbb{P}(A \mid (B \bigcap C)) \cdot \mathbb{P}(B \bigcap C)
+= \mathbb{P}(A \mid (B \bigcap C)) \cdot \mathbb{P}(B \mid C) \cdot \mathbb{P}(C)$$
+
+------
+
+*(Q6)* Q.Show that given three events $A$, $B$, $C \in \varepsilon$ we have $\mathbb{P}(A \mid B \bigcap C) = \frac{\mathbb{P}(B \mid A \bigcap C) \cdot \mathbb{P}(A \mid C)}{\mathbb{P}(B \mid C)}$.
+
+*(A6)*  First, we compute the left part of the formula that 
+$$\mathbb{P}(A \mid B \bigcap C) = \frac{\mathbb{P}(A \bigcap B \bigcap C)}{\mathbb{P}(B \bigcap C)}$$
+
+   Then, we compute the right part, since that 
+   $$\mathbb{P}(A \mid C) = \frac{\mathbb{P}(A \bigcap C)}{\mathbb{P}(C)}$$
+   And,
+   $$\mathbb{P}(B \mid C) = \frac{\mathbb{P}(B \bigcap C)}{\mathbb{P}(C)}$$
+   
+   So,
+   $$\frac{\mathbb{P}(B \mid A \bigcap C) \cdot \mathbb{P}(A \mid C)}{ \mathbb{P}(B \mid C)}
+   = \frac{\mathbb{P}(B \mid A \bigcap C) \cdot \mathbb{P}(A \bigcap C)}{\mathbb{P}(B \bigcap C)}$$
+   
+   Hence,
+   $$\mathbb{P}(B \mid A \bigcap C) \cdot \mathbb{P}(A \bigcap C) = \mathbb{P}(A \bigcap B \bigcap C)$$
+   
+   $$\frac{\mathbb{P}(B \mid A \bigcap C) \cdot \mathbb{P}(A \mid C)}{\mathbb{P}(B \mid C)}
+   = \frac{\mathbb{P}(A \bigcap B \bigcap C)}{\mathbb{P}(B \bigcap C)}
+   = \mathbb{P}(A \mid B \bigcap C)$$
+   
+
+### 3 Sampling with replacement
+ Recall that for positive integers $n$ and $k$, $\binom{n}{k} = \frac{n!}{(k!)(n-k)!}$ 
+ gives the number of subsets of size $k$ from $a$ set of $n$ objects.
+
+ You can compute this number straightforwardly within R via the choose function choose( ). For example,
+if we want to compute the number of different subsets of size 3 from a collection of size 8 we would compute:
+choose(8,3)
+```{r}
+choose(8, 3)
+```
+
+Suppose we have a bag containing 10 spheres. This includes 3 red spheres and 7 blue spheres.
+
+Let’s suppose that we draw a sphere at random from the bag (all spheres have equal probability of being drawn).
+We record its colour and then return the sphere to the bag. This process is repeated 35 times. 
+This is an example of sampling with replacement since the spheres are replaced after each draw.
+
+*(Q)* Write down a mathematical expression for the probability that $z$ out of 
+the 35 selections were red spheres (here $z \in \{1,...,35\}$).
+Try doing this with in laTex, making use of the laTex functions binom{}{} and frac{}{}.
+
+*(A)* The expression is:
+$$\binom{35}{z} \cdot (\frac{3}{10}) ^ z \cdot (\frac{7}{10}) ^{35-z}$$
+
+*(Q)* Next write an R function called prob_red_spheres() which takes $z$ as an 
+argument and computes the probability that $z$ out of a total of the 35 balls 
+selected are red.
+
+*(A)* 
+```{r}
+num_red_balls <- 3
+num_total_balls <- 10
+total_draws <- 35
+
+prob_red_spheres <- function(z){
+  result <- choose(total_draws, z) * 
+    (num_red_balls / num_total_balls) ^ z * 
+    ((num_total_balls - num_red_balls) / num_total_balls) ^ (total_draws - z)
+  return(result)
+}
+```
+
+Test my function as follows:
+```{r}
+prob_red_spheres(20)
+```
+
+*(Q)* Generate a data frame called prob_by_num_reds with two columns num_reds and prob. 
+The num_reds column should contain numbers 1 through 35 and the prob column should give 
+the associated probability of selecting that many reds out of a total number of 35 selections.
+
+*(A)*
+```{r}
+library(tidyverse)
+```
+
+```{r}
+prob_by_num_reds <- data.frame(num_reds = seq(35)) %>%
+  mutate(prob = prob_red_spheres(num_reds))
+```
+
+Display the first 3 rows of your data frame:
+```{r}
+prob_by_num_reds %>% head(3)
+```
+
+*(Q)* Now use the geom_line() function within the ggplot2 library, in conjunction 
+with your data frame to display a plot of the probability as a function of the
+number of reds.
+
+*(A)*
+```{r}
+prob_by_num_reds %>% 
+  ggplot(mapping = aes(x = num_reds, y = prob)) + 
+  geom_line() +
+  theme_bw() +
+  xlab("Number of reds") + 
+  ylab("Probability")
+```
+
+*(Q)* Next we shall explore the sample() function within R. Let’s suppose we want
+to simulate a random experi- ment in which we sample with replacement from a 
+collection of 10 objects, and repeat this process 35 times. We can do this by calling:
+
+```{r}
+sample(10 , 35, replace=TRUE)
+```
+
+Try this out for yourself. The output should be a vector of length 35 consisting 
+entirely of numbers between 1 and 10. Since this is sampling with replacements 
+and the number of samples exceeds the number of elements there will be repetitions.
+
+Try rerunning the function. You probably get a different sample. This is to be 
+expected, and even desirable, since the function simulates a random sample. 
+However, the fact that we get a different answer every time we run the code is 
+problematic from the prespective of reproducibility. To avoid this process we 
+can set a random seed via the function set.seed(). By doing so we should get the 
+same output every time. Try the following out for your self:
+```{r}
+for (i in 1:5) {
+  print(sample(100, 5, replace = FALSE))
+  # The result may well differ every time
+}
+
+## Resetting the random seed every time
+for(i in 1:5){
+  set.seed(1) 
+  print(sample(100,5,replace=FALSE)) # The result should not change
+}
+```
+
+```{r}
+set.seed(0)
+for (i in 1:5) {
+  print(sample(100, 5, replace = FALSE))
+  # The result may well differ every time
+}
+```
+
+We shall now use the sample() to construct a simulation study to explore the 
+probability of selecting z red balls from a bag of size 10, with 3 red and 7 
+blue balls, when sampling 35 balls with replacement.
+
+First set a random seed. Then create a data frame called sampling_with_replacement_simulation 
+consisting of a two columns. The first is called trial and contains numbers 1 
+through 1000. The second is called sample_balls and corresponds to a random 
+sample of size 35 from a bag of size 10, with replacement. We can do this as follows:
+```{r}
+num_trials <- 1000 # set the number of trials
+set.seed(0) # set the random seed
+sampling_with_replacement_simulation <- data.frame(trial = 1:num_trials) %>%
+  mutate(sample_balls = map(.x = trial, ~sample(10, 35, replace = TRUE)))
+# generate collection of num_trials simulations
+```
+
+Now add a new column called num_reds such that, for each row, num_reds contains 
+an integer which gives the number of items within the sample for that row (the
+entry in the sample_balls column) which are less than or equal to three. For 
+example, suppose that some row of the data frame, the sample_balls column contains 
+the following list:
+
+9, 4, 7, 1, 2, 7, 2, 3, 1, 5, 5, 10, 6, 10, 7, 9, 5, 5, 9, 9,
+5, 5, 2, 10, 9, 1, 4, 3, 6, 10, 10, 6, 4, 4, 10
+
+Then the corresponding row of the num_reds column should contain the number 8, 
+since 8 of these values are less than equal to 3. You may want to use the functions 
+mutate(), map_dbl and sum().
+
+```{r}
+sampling_with_replacement_simulation <- sampling_with_replacement_simulation %>%
+  mutate(num_reds = map_dbl(.x = sample_balls, ~sum(.x <= 3)))
+```
+
+### Help!!
+
+Next we shall add a new column called simulation_count to our existing data frame 
+prob_by_num_reds which gives the number of times within our simulation we observed 
+the corresponding number of reds. We can do this as follows:
+```{r}
+num_reds_in_simulation <- sampling_with_replacement_simulation %>% pull(num_reds)
+# we extract a vector corresponding to the number of reds in each trial
+prob_by_num_reds <- prob_by_num_reds %>%
+  mutate(simulation_count = map_dbl(.x = num_reds, ~sum(num_reds_in_simulation == .x)))
+# add a column which gives the number of trials with a given number of reds
+prob_by_num_reds %>% head(5)
+```
+
+Next we add a column called expected_count corresponding to the expected number 
+of observed reds in 1000 based upon your probability formula.
+```{r}
+prob_by_num_reds <- prob_by_num_reds %>%
+  mutate(expected_count = num_trials * prob)
+prob_by_num_reds %>% head(5)
+```
+
+Finally, create a plot which compares the results of your simulation with the 
+expected count based on your probability formula. The concept of expectation will
+be discussed in Lecture 11.
+
+Your result should look something like the plot below. Of course, since this is a
+random simulation, your result may well look slightly different.
+```{r}
+prob_by_num_reds %>%
+  rename(Simulation = simulation_count, Expected = expected_count) %>%
+  pivot_longer(cols = c("Simulation", "Expected"),
+               names_to = "Type", values_to = "count") %>%
+  ggplot(aes(num_reds, count)) + 
+  geom_line(aes(linetype = Type, color = Type)) + 
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  theme_bw() +
+  xlab("Number of reds") +
+  ylab("Count")
+```
+
+### 4 Sampling without replacement
+
+This question is more challenging. However, you should aim to complete at least 
+the simulation component using ideas from the previous question.
+
+Let’s suppose we have large bag containing 100 spheres. There are 50 red spheres, 
+30 blue spheres and 20 green spheres. Suppose that we sample 10 spheres from the 
+bag without replacement.
+
+What is the probability that one or more colours is missing from your selection?
+
+First aim to answer this question via a simulation study using ideas from the previous question.
+
+You may want to use the following steps:
+
+1. First set a random seed;
+2. Next set a number of trials, a number of reds, a number of blues, a number of 
+greens and a sample size;
+3. Now use a combination of the functions sample(), mutate() and map() to generate 
+your samples.Here you are creating sample of size 10 from a collection of 100 balls -
+the sampling is done without replacement;
+4. Now compute the number of “reds”, “greens” and “blues” in your sample using 
+the map_dbl() and mutate() functions;
+5. Compute the minimum of the three counts using the pmin() function. When this 
+minimum is zero, then one of the three colours is missing. It is recommended that 
+you look up the difference between pmin() and min() here;
+6. Compute the proportion of rows for which the minimum number of the three counts is zero.
+
+*(Q)*
+Try this initially with a small number of simulations. Increase your number of 
+simulations to about a relatively large number to get a more accurate answer,
+once everything seems to be working well.
+
+*(A)*
+```{r}
+set.seed(0) # set the random seed
+num_trials <- 100000 # se0t the number of trials
+num_red <- 50 # set the number of reds
+num_blue <- 30 # set the number of blues
+num_green <- 20 # set the number of greens
+sample_size <- 10
+
+total <- num_red + num_blue + num_green
+
+sampling_without_replacement_simulation <- data.frame(trial = 1:num_trials) %>%
+  mutate(sample_balls = map(.x = trial, ~sample(total, sample_size, replace = FALSE))) %>%
+  # simulate without replacement the sampling of 10 balls from a bag of 100
+  mutate(num_reds = map_dbl(.x = sample_balls, ~sum(.x <= num_red))) %>%
+  mutate(num_blues = map_dbl(.x = sample_balls, ~sum((.x > num_red)  & (.x <= num_red + num_blue)))) %>%
+  mutate(num_greens = map_dbl(.x = sample_balls, ~sum((.x > num_red + num_blue) & (.x <= total)))) %>%
+  # count the number of each colour
+  mutate(colour_missing = (pmin(num_reds, num_blues, num_greens) == 0))
+  # look for missing colours
+
+prob_missing_simulation <- mean(sampling_without_replacement_simulation %>%
+                                  pull(colour_missing))
+
+```
+
+*(Q)* The next part of the question is more challenging and may be omitted if you
+are short on time.
+(*) Once you have a simulation based answer you can try and use “combinations” 
+with $\binom{n}{k}$ to compute the k probability directly. First aim and compute 
+the number of subsets of size 10 from 100 which either entirely miss out one of 
+the subsets Reds = {1,...,50}, Blues = {51,...,80}, Greens = {81,...,100}. Be careful 
+not to double count some of these subsets! Once you have computed all such subsets 
+combine with the formula for the total number of subsets of size 10 from a set of 100, 
+to compute the probability of missing a colour.
+
+*(A)*
+
+
+
+
