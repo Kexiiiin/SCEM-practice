@@ -1,0 +1,369 @@
+---
+title: "Assignment5"
+author: "Kexin Wu"
+date: "05/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+## Assignment 5 for Statistical Computing and Empirical Mathods
+
+### 1 Expectation and variance of a discrete random variable
+
+Suppose that $\alpha, \beta \in [0, 1]$ with $\alpha + \beta \leq 1$ and let $X$ 
+be a discrete random variable with with distribution supported on {0, 1, 5}. 
+Suppose that $\mathbb{P}(X = 1) = \alpha$ and $\mathbb{P}(X = 5) = \beta$ and 
+$\mathbb{P}(X \notin \{0, 1, 5\}) = 0$.
+
+--------
+
+*(Q)* What is the probability mass function $pX : S \to [0,1]$ for $X$? 
+
+*(A)* We have
+$$
+p(x) = \begin{cases}
+1 - \alpha - \beta & if \quad x = 0 \\
+\alpha & if \quad  x = 1 \\
+\beta & if \quad x = 5 \\
+0 & otherwise \\
+\end{cases}
+$$
+
+------
+
+*(Q)* What is the expectation of $X$?
+
+*(A)*
+$$
+\mathbb{E}[X] = (1 - \alpha - \beta) \cdot 0 + \alpha \cdot 1 + \beta \cdot 5 + 0  = \alpha + 5 \beta
+$$
+
+-------
+
+*(Q)* What is the variance of $X$?
+
+*(A)* 
+$Var(X) = \mathbb{E}[\{X - \mathbb{E}(X)\}^2]$
+
+$\qquad \qquad = \mathbb{E}[X^2 + (\mathbb{E}(X))^2 - 2X\mathbb{E}(X)]$
+
+$\qquad \qquad = \mathbb{E}(X^2) + [\mathbb{E}(X)]^2 - 2\mathbb{E}(X)\mathbb{E}(X)$
+
+$\qquad \qquad = \mathbb{E}(X^2) - [\mathbb{E}(X)]^2$ 
+
+$\qquad \qquad = (\alpha + 25 \beta) - (\alpha + 5 \beta)^2$
+
+$\qquad \qquad = \alpha + 25 \beta - \alpha ^ 2 - 25 \beta ^ 2 - 10 \alpha \beta$
+
+---------
+
+### 2 Simulating data with the uniform distribution
+
+We shall now use the uniform distribution to simulate data from the discrete random 
+variable discussed in the previous question. A uniformly distributed random variable 
+$U$ is a continuous random variable with probability density function
+
+$$
+p_U(x) = \begin{cases}
+1 & if \quad x \in [0,1]\\
+0 & if \quad otherwise.\\
+\end{cases}
+$$
+
+-------
+
+*(Q)* Show that for any region pair of numbers $a, b \in \mathbb{R}$ with $0 \leq a \leq b \leq 1$
+we have $\mathbb{P}(U \in [a, b]) = b - a$.
+
+*(A)*
+$$
+\mathbb{P}(U \in [a, b]) = \int_a^b p_U(x)dx = \int_a^b dx = b - a
+$$
+
+-------
+
+We can generate data from the uniform distribution using the runif function. More 
+precisely, the output of runif simulates a sequence $U_1,...,U_n$ consisting of 
+independent and identically distributed unform random variables (independent copies 
+of $U$ with probability density function $p_U$).
+
+Now let’s return to the discrete random variable discussed in the previous question 
+in which $\mathbb{P}(X = 1) = \alpha$ and $\mathbb{P}(X = 5) = \beta$ and 
+$\mathbb{P}(X = 0) = 1 − \alpha − \beta$. First consider the case in which 
+$\alpha = \beta = 0.25$. You can generate a sequence of i.i.d. copies $X_1,..., X_n$ 
+of $X$ as follows:
+```{r}
+set.seed(0)
+
+n <- 1000
+
+sample_X <- data.frame(U = runif(n)) %>%
+  mutate(X = case_when(
+    (0 <= U) & (U < 0.25) ~ 1,
+    (0.25 <= U) & (U < 0.5) ~ 5,
+    (0.5 <= U) & (U <= 1) ~ 0)) %>%
+  pull(X)
+```
+
+------------
+
+*(Q)* Why does this sample_X correspond to a sequence of i.i.d. copies $X_1, . . . , X_n$
+of $X$ where $\mathbb{P}(X = 1) = \alpha$ and $\mathbb{P}(X = 5) = \beta$ and 
+$\mathbb{P}(X = 0) = 1 − \alpha − \beta$ with $\alpha = \beta = 0.25$?
+ 
+*(A)* We have $\mathbb{P}(0 \leq U < 1/4) = 1/4$, $\mathbb{P}(1/4 \leq U < 1/2) = 1/4$
+and $\mathbb{P}(1/2 \leq U < 1) = 1/2$, so this code generates a random variable X
+with $\mathbb{P}(X = 1) = \mathbb{P}(X = 5) = 1/4$ and  $\mathbb{P}(X = 0) = 1/2$ as required.
+
+-----------
+
+*(Q)* Now create a function called sample_X_015() which takes as inputs $\alpha, \beta$ 
+and $n$ and outputs a sample $X_1 , . . . , X_n$ of independent copies of $X$ where 
+$\mathbb{P}(X = 1) = \alpha$ and $\mathbb{P}(X = 5) = \beta$ and $\mathbb{P}(X = 0) = 1 − \alpha − \beta$.
+
+*(A)*
+```{r}
+sample_X_015 <- function(n, alpha, beta){
+  sample_X <- data.frame(U = runif(n)) %>%
+    mutate(X = case_when(
+      (0 <= U) & (U < alpha) ~ 1,
+      (alpha <= U) & (U < alpha + beta) ~ 5,
+      (alpha + beta <= U) & (U <= 1) ~ 0)) %>%
+  pull(X)
+  
+  return(sample_X)
+}
+```
+
+-----------
+
+*(Q)* Next take $\alpha = 1/2$ and $\beta = 1/10$, and use your function sample_X_015() 
+to create a sample of size $n = 10000$, of the form $X_1, . . . , X_n$ consisting of independent 
+copies $X$ for each value of $\beta$. What is the sample average of $X_1, . . . , X_n$? 
+How does this compare with $\mathbb{E}(X)$? Use your understanding of the law of 
+large numbers to explain this behaviour.
+
+*(A)* 
+```{r}
+n <- 10000
+alpha <- 1/2
+beta <- 1/10
+
+sample_X <- sample_X_015(n, alpha, beta) 
+
+mean(sample_X) # compute the sample average of X1,..., Xn
+
+```
+ Based on the answer of question in section 1, we have $\mathbb{E}(x) = \alpha + 5\beta = 1$.
+ Moreover, in light of the law of large numbers we expect the sample average to be 
+ close to the expectation for large samples of independent and identically distributed 
+ random variables.
+
+-----------
+
+*(Q)* In addition, compute the sample variance of $X_1 , . . . , X_n$ and compare with $Var(X)$.
+
+*(A)*
+```{r}
+var(sample_X)
+```
+By question in section 1, we have $Var(X) = \alpha + 25\beta - \alpha^2 - 25\beta^2 - 10\alpha\beta = 2$
+for $\alpha = 1/2$ and $\beta = 1/10$. Hence, the sample variance is close to the population variance.
+
+----------
+
+*(Q)* Now take $\alpha = 1/10$ and vary $\beta$ in increments of $0.01$ from $0$ to $9/10$, 
+using your function sample_X_015() to create a sample of size $n = 100, X1, . . . , Xn$ 
+consisting of independent copies $X$ for each value of $\beta$. Create a plot of 
+the sample averages as a function of $\beta$.
+
+*(A)*
+```{r}
+set.seed(0)
+
+n <- 100
+alpha <- 1/10
+
+simulation_by_beta <- data.frame(beta = seq(0, 9/10, 0.01)) %>%
+  mutate(sample_X = map(.x = beta, ~sample_X_015(n, alpha, .x))) %>%
+  mutate(sample_avg = map_dbl(.x = sample_X, ~mean(.x))) %>%
+  select(-sample_X) %>%
+  mutate(expectation = alpha + 5 * beta)
+
+simulation_by_beta %>% head(5) 
+```
+
+```{r}
+df_pivot <- simulation_by_beta %>%
+  rename(Sample = sample_avg, Expectation = expectation) %>%
+  pivot_longer(cols = !beta, names_to = "var", values_to = "val")
+
+df_pivot %>% head(5)
+```
+
+```{r}
+## 使用TeX() function 需要latex2exp包，一种将latex语法转变为expression语句的辅助包
+library(latex2exp)
+```
+
+
+```{r}
+df_pivot %>%
+  ggplot(aes(x = beta,  y = val, linetype = var)) + 
+  geom_line(data = df_pivot %>%
+              filter(var == "Expectation")) + 
+  geom_point(data = df_pivot %>%
+               filter(var == "Sample")) +
+  labs(x = TeX("$\\beta$"), y = "Mean", linetype = "") +
+  theme_bw()
+```
+
+----------
+
+### 3 The Gaussian distribution
+
+Write out the probability density function of a Gaussian random variable with mean 
+$\mu$ and standard deviation $\sigma > 0$.
+
+Use the help function to look up the following four functions: dnorm(), pnorm(), qnorm() and rnorm().
+
+--------
+
+*(Q)* Generate a plot which displays the probability density function for three Gaussian 
+distributions $X_1 \thicksim \mathcal{N}(\mu_1,\sigma_1^2)$, $X_2 \thicksim \mathcal{N}(\mu_2,\sigma_2^2)$
+and $X_3 \thicksim \mathcal{N}(\mu_3,\sigma_3^2)$ with $\mu_1 = \mu_2 = \mu_3 = 1$ and variances
+$\sigma_1^2 = 1$, $\sigma_2^2 = 2$ and $\sigma_3^2 = 3$.
+
+*(A)* 
+```{r}
+x <- seq(-4, 6, 0.1)
+
+normal_densities_by_x <- data.frame(x = x, density = dnorm(x, mean = 1, sd = sqrt(1)), var = 1) %>%
+  rbind(data.frame(x = x, density = dnorm(x, mean = 1, sd = sqrt(2)), var = 2)) %>%
+  rbind(data.frame(x = x, density = dnorm(x, mean = 1, sd = sqrt(3)), var = 3))
+
+ggplot(normal_densities_by_x, aes(x, y = density, color = as.character(var),
+                                  linetype = as.character(var))) + geom_line() +
+         theme_bw() + labs(color = "Variance", linetype = "Variance", x = "x", y = "Density")
+
+```
+
+---------------
+
+*(Q)* Generate a corresponding plot for the cumulative distribution function for three Gaussian distributions $X_1 \thicksim \mathcal{N}(\mu_1, \sigma_1^2)$, $X_2 \thicksim \mathcal{N}(\mu2, \sigma_2^2)$ and $X_3 \thicksim \mathcal{N}(\mu2, \sigma_3^2)$ with $\mu_1 = \mu_2 = \mu_3 = 1$ 
+and variances $\sigma_1^2 = 1$, $\sigma_2^2 = 2$ and $\sigma_3^2 = 3$.
+
+*(A)*
+```{r}
+x <- seq(-4, 6, 0.1)
+
+normal_distribution_by_x <- data.frame(x = x, distribution = pnorm(x, mean = 1, sd = sqrt(1)), var = 1) %>%
+  rbind(data.frame(x = x, distribution = pnorm(x, mean = 1, sd = sqrt(2)), var = 2)) %>%
+  rbind(data.frame(x = x, distribution = pnorm(x, mean = 1, sd = sqrt(3)), var = 3))
+
+ggplot(normal_distribution_by_x, aes(x, y = distribution, color = as.character(var),
+                                  linetype = as.character(var))) + geom_line() +
+         theme_bw() + labs(color = "Variance", linetype = "Variance", x = "x", y = "Cumulative distribution function")
+```
+
+------------
+
+*(Q)* Next generate a plot for the quantile function for the same three Gaussian 
+distributions. Describe the relationship between the quantile function and the 
+cumulative distribution function.
+
+*(A)*
+```{r}
+probs <- seq(0, 1, 0.01)
+
+normal_quantile_by_x <- data.frame(p = probs, quantile = qnorm(probs, mean = 1, sd = sqrt(1)), var = 1) %>%
+  rbind(data.frame(p = probs, quantile = qnorm(probs, mean = 1, sd = sqrt(2)), var = 2)) %>%
+  rbind(data.frame(p = probs, quantile = qnorm(probs, mean = 1, sd = sqrt(3)), var = 3))
+
+ggplot(normal_quantile_by_x, aes(x = p, y = quantile, color = as.character(var),
+                                  linetype = as.character(var))) + geom_line() +
+         theme_bw() + labs(color = "Variance", linetype = "Variance", x = "Probability", y = "Quntile")
+```
+
+------------
+
+*(Q)*(*) Recall that for a random variable $X : \Omega \to R$ is said to be Gaussian 
+with expectation $\mu$ and variance $\sigma^2 (X \thicksim \mathcal{N}(\mu, \sigma^2)$ 
+if for any $a,b \in R$ we have
+$$
+\mathbb{P}(a \leq X \leq b) = \int_a^b \frac{1}{\sigma \sqrt{2\pi}}e^{-\frac{1}{2}(\frac{z-\mu}{\sigma})^2}dz
+$$
+Suppose $Z \thicksim \mathcal{N}(0, 1)$ is a Gaussian random variable. Take 
+$\alpha, \beta \in R$ and let $W: \Omega \to R$ be the random variable given by 
+$W = \alpha Z + \beta$. Apply a change of variables to show that $W$ is a Gaussian 
+random variable with expectation $\beta$ and variance $\alpha^2$.
+
+*(A)*  !!!!!!!Let $\phi: \mathbb{R} \to \mathbb{R}$ be the function $\phi(z) = \alpha \cdot z + \beta$,
+so that $\phi^{-1}(w) = \frac{w-\beta}{\alpha}$ and $W = \phi(z)$. Note that
+$\frac{d\phi(z)}{dz} \equiv \alpha$. Given $a, b \in R$ we have
+
+$\mathbb{P}(a \leq W \leq b) = \mathbb{P}(a \leq \alpha Z + \beta \leq b) = \mathbb{P}(a \leq \phi(Z) \leq b)$
+$= \mathbb{P}(\phi^{-1}(a) \leq Z \leq \phi^{-1}(b))$ 
+
+$\qquad \qquad = \int_{\phi^{-1}(a)}^{\phi^{-1}(b)}\frac{1}{\sqrt{2\pi}}e^{-\frac{1}{2}z^2}dz$ 
+$= \int_a^b\frac{1}{\sqrt{2\pi}}e^{-\frac{1}{2}\{\phi^{-1}(w)\}}(\frac{d\phi(z)}{dz}^{-1})dw$
+$= \int_a^b\frac{1}{\alpha sqrt{2\pi}}e^{{-\frac{1}{2}}(\frac{w-\beta}{\alpha})^2}dw$
+
+as required.
+
+-------------
+
+*(Q)* Now use rnorm() generate a random independent and identically distributed 
+sequence $Z_1, · · · , Z_n \thicksim \mathcal{N}(0, 1)$ so that each 
+$Z_i \thicksim \mathcal{N}(0, 1)$ has standard Gaussian distribution with $n = 100$. Make sure your code is reproducible by using the set.seed() function. Store your random sample in a vector called “standardGaussianSample”.
+
+*(A)*
+```{r}
+set.seed(0)
+standardGaussianSample <- rnorm(100)
+```
+
+---------------
+
+*(Q)* Use your existing sample stored in standardGaussianSample to generate a sample of size $n$ of the form $Y_1, · · · , Y_n \thicksim \mathcal{N}(1, 3)$ with expectation $\mu = 1$ and population variance $\sigma^2 = 3$. Store your second sample in a vector called mean1Var3GaussianSampleA.The $i$-th observation in the sample mean1Var3GaussianSampleA should be of the form $Y_i = \alpha \cdot Z_i + \beta$, for appropriately chosen $\alpha, \beta \in R$, where $Z_i$ is the $i$-th observation in the sample standardGaussianSample.
+
+*(A)*
+```{r}
+mean1Var3GaussianSampleA <- 1 + sqrt(3) * standardGaussianSample
+```
+
+----------------
+
+*(Q)* Reset the random seed to the same value as before using the set.seed() function 
+and generate an i.i.d. sample of the form $Y_1 , · · · , Y_n \thicksim \mathcal{N}(1, 3)$
+using the rnorm() function. Store this sample in a vector called mean1Var3GaussianSampleB. 
+Compare the vectors mean1Var3GaussianSampleA and mean1Var3GaussianSampleB.
+
+*(A)*
+```{r}
+set.seed(0)
+mean1Var3GaussianSampleB <- rnorm(100, 1, sqrt(3))
+
+all.equal(mean1Var3GaussianSampleA,mean1Var3GaussianSampleB)
+```
+
+------------
+
+*(Q)* Now generate a graph which includes both a kernel density plot for your sample 
+mean1Var3GaussianSampleA and the population density (the probability density function) 
+generated using dnorm(). You can also include two vertical lines which display both 
+the population mean and the sample mean. You may want to use the geom_density() 
+and geom_vline() functions. 
+
+*(A)*
+```{r}
+
+
+```
