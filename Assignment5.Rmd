@@ -364,6 +364,363 @@ and geom_vline() functions.
 
 *(A)*
 ```{r}
+mu <- 1
 
+colors <- c("Population density" = "red", "Sample kernel density" = "blue", "Population mean" = "green", "Sample mean" = "violet")
+
+linetypes <- c("Population density" = "solid", "Sample kernel density" = "dashed", "Population mean" = "solid", "Sample mean" = "dashed")
+
+mean1var3_normal_densities_by_x <- normal_densities_by_x %>%
+  filter(var == 3)
+
+mean1var3_Sample_kernel_density <- data.frame(mean1Var3GaussianSampleA) %>%
+  rename(x = mean1Var3GaussianSampleA)
+
+ggplot() + labs(x = "x", y = "Density") + theme_bw() + 
+  geom_line(data = mean1var3_normal_densities_by_x, aes(x, y = density, color = "Population density")) + 
+  # create plot of theoretical density
+  geom_density(data = mean1var3_Sample_kernel_density, aes(x = x, color = "Sample kernel density", linetype = "Sample kernel density")) +
+  # add in kernel density plot from real sample
+  geom_vline(aes(xintercept = mu, color = "Population mean", linetype = "Population mean")) + 
+  geom_vline(aes(xintercept = mean(mean1Var3GaussianSampleA), color = "Sample mean", linetype = "Sample mean")) + 
+  scale_color_manual(name = "Legend", values = colors) + 
+  scale_linetype_manual(name = "Legend", values = linetypes)
+  
 
 ```
+
+----------------
+
+### 4 The Binomial distribution and the central limit theorem
+
+
+Two important discrete distributions are the Bernoulli distribution and the Binomial 
+distribution. We say that a random variable $X$ has Bernoulli distribution with 
+parameter $p \in [0, 1]$ if $\mathbb{P}(X = 1) = p$ and $\mathbb{P}(X = 0) = 1 − p$.
+This is often abbreviated as $X \thicksim \mathcal{B}(p)$.
+
+Given $n \in \mathbb{N}$ and $p \in [0, 1]$, we say that a random variable $Z$ has 
+Binomial distribution with parameters $n$ and $p$ if $Z = X_1 + ··· + X_n$ where 
+$X_i \thicksim \mathcal{B}(p)$ and $X_1,··· ,X_n$ are independent and identically 
+distributed. This is often abbreviated as $Z \thicksim Binom(n, p)$.
+
+-----------
+
+*(Q)* Compute the expectation and variance of $Z \thicksim Binom(n, p)$. You may 
+want to make use of following two useful facts:
+
+1. Given any sequence of random variables $W_1, · · · , W_k$ we have 
+$\mathbb{E}(\sum_{i = 1}^kW_i) = \sum_{i = 1}^{k}\mathbb{E}(W_i)$.
+
+2. Given independent random variables $W_1,··· , W_n$ we have 
+$Var(\sum_{i = 1}^{k}W_i) = \sum_{i = 1}^{k}Var(W_i)$.
+
+*(A)* Note that since $X_i \thicksim \mathcal{B}(p)$ for each $i = 1, ..., n$ we have
+$\mathbb{E}(X_i) = p$ and $Var(X_i) = p(1-p)$.
+
+From 1. we have 
+$$
+\mathbb{E}(Z) = \mathbb{E}(\sum_{i = 1}^nX_i) = \sum_{i = 1}^n\mathbb{E}(X_i) = \sum_{i = 1}^np = np
+$$
+From 2. we have
+$$
+Var(Z) = Var(\sum_{i = 1}^n X_i) = \sum_{i = 1}^n Var(X_i) = \sum_{i = 1}^n p(1 - p) = np(1 - p)
+$$
+
+-----------------
+
+*(Q)* Is it always true that $Var(\sum_{i = 1}^k W_i) = \sum_{i = 1}^k Var(W_i)$, 
+even if $W_1,··· , W_k$ are not independent?
+
+*(A)* No.
+Consider the case where $k = 2$ and $W_2 = -W_1$
+
+-----------------
+
+*(Q)* The function dbinom() in R allows us to compute the probability mass function o
+f a Binomial random variable $Z \thicksim Binom(n, p)$. By taking $x \in \{0, 1, . . . , n\}$
+size=n and prob=p as arguments, the function dbinom(x,size=n, prob=p) will return 
+the probability mass function $p_Z(x) = \mathbb{P}(Z = x)$ evaluated at $x$. 
+You can run ?dbinom in the R console to find out more.
+
+Consider the case where $n = 50$ and $p = 7/10$. Use the dbinom() to generate a dataframe 
+called binom_df with two columns - x and pmf. The first column contains the numbers 
+$\{0,1,...,50\}$ inclusive. The second column gives the corresponding value of the 
+robability mass function $p_Z(x) = \mathbb{P}(Z = x)$ with $Z \thicksim Binom(50, 7/10)$. 
+Use the head() function to observe the first 3 rows as your data frame. 
+
+*(A)*
+```{r}
+p <- 0.7
+n <- 50
+
+binom_df <- data.frame(x = seq(0, n)) %>%
+  mutate(pmf = map_dbl(.x = x, ~dbinom(x = .x, size = n, prob = p)))
+
+binom_df  %>%
+  head(3)
+```
+
+------------------
+
+*(Q)* The function dnorm() in R allows us to compute the probability density function of a Gaussian random variable $W \thicksim \mathbb{N}(\mu, \sigma^2)$ with expectation $\mu$ and variance $\sigma^2$. By taking $x \in R$, mean=mu and sd=sigma as arguments, the function dnorm(x,mean=mu, sd=sigma) will return the probability density function $f_W(x)$ for $W \thicksim \mathbb{N}(\mu, \sigma^2)$, evaluated at $x$. You can run ?rnorm in the R console to find out more. 
+
+We shall consider a case where $\mu = 50 \cdot 0.7$ and $\sigma = \sqrt{50 \cdot 0.7 \cdot(1−0.7)}$. Use the rnorm() to generate a dataframe called norm_df with two columns - x and pdf. The first column contains the numbers $\{0, 0.01, 0.02, 0.03, . . . , 49.99, 50\}$. The second column gives the corresponding value of the probability density function $f_W (x)$ with $W \thicksim \mathbb{N}(\mu, \sigma^2)$. Use the head() function to observe tkhe first 3 rows as your data frame.
+
+*(A)*
+```{r}
+mu = n * p
+sigma = sqrt(n * p * (1 - p))
+gaussian_df = data.frame(x = seq(0, n, 0.01)) %>%
+  mutate(pdf = map_dbl(.x = x, ~dnorm(x = .x, mean = mu, sd = sigma)))
+
+gaussian_df %>% head(3)
+```
+
+-----------
+
+*(Q)* Next, use the following code to create a plot which compares the probability density for your Gaussian distribution $W \thicksim \mathbb{N}(\mu, \sigma^2)$ where $\mu = n \cdot p$ and $\sigma = \sqrt{n \cdot p(1 − p)}$ and the probability mass function for your Binomial distribution $Z \thicksim Binom(n, p)$.
+
+```{r}
+colors <- c("Gaussian pdf" = "red", "Binomial pmf" = "blue")
+
+fill <- c("Gaussian pdf" = "white", "Binomial pmf" = "white")
+
+ggplot() + labs(x = "x", y = "Probability") + theme_bw() +
+  geom_line(data = gaussian_df,
+            aes(x, y = pdf, color = "Gaussian pdf"), size = 2) +
+  # create plot of Gaussian density
+  geom_col(data = binom_df,
+           aes(x= x, y = pmf, color = "Binomial pmf", fill = "Binomial pmf")) +
+  scale_color_manual(name = "Legend", values = colors) + 
+  scale_fill_manual(name = "Legend", values = fill) + 
+  xlim(c(20, 50))
+
+```
+
+------------------
+
+*(Q)* (* )Now use the central limit theorem to explain the results you observe.
+
+*(A)* Since $Z \thicksim Binom(n,p)$ we can write out $Z = X_1 + ... + X_n$ where $X_1,...,X_n$ are independent copies of $X \thicksim \mathcal{B}(p)$,  so $\mathbb{E}(X) = p$ and $Var(X) = p(1−p)$. Let $W \thicksim \mathcal{N}(np,np(1−p))$ be a Gaussian random variable, so that $W:= \frac{W - np}{\sqrt{np(1-p)}}$ is a standard Gaussian random variable i.e. $W \thicksim \mathcal{N}(0, 1)$
+
+!!!!!!!!!!!!!!!!!!!!
+
+------------------
+
+### 5 Exponential distribution
+
+Let $\lambda > 0$ be a positive real number. An exponential random variable $X$ with rate parameter $\lambda$ is a continuous random variable with density $p_\lambda: \mathbb{R} \to (0, \infty)$ defined by
+$$
+p_\lambda(x) := \begin{cases}
+0  & if\quad x < 0\\
+\lambda e^{-\lambda x} & if \quad x \geq 0
+\end{cases}
+$$
+
+-----------------
+
+*(Q)* First prove that $p_\lambda$ is a well-defined probability density function.
+
+*(A)* First note that $p_\lambda(x) \geq 0$ for all $x \in \mathbb{R}$ and
+$$
+\int_{-\infty}^{\infty}p_\lambda(x) = \int_{0}^{\infty}\lambda e^{-\lambda x} = \lambda \cdot [-\lambda ^ {-1} \cdot e^{-\lambda x}]_0^\infty  = 1
+$$
+
+-------------------
+
+*(Q)* Compute the population mean and variance of an exponential random variable $X$ with parameter $\lambda$.
+
+*(A)* Using integration by parts we have,
+$$
+\mathbb{E}[X] = \int_{-\infty}^{\infty}xp_\lambda(x)dx = \int_0^\infty\lambda xe^{-\lambda x}dx
+= [x e^{-\lambda x}]_0^\infty + \int_0^\infty e^{-\lambda x}dx 
+= 0 + [-\frac{1}{\lambda}e^{-\lambda x}]_0^\infty = \frac{1}{\lambda}
+$$
+Using integration by parts again we have,
+$$
+\mathbb{E}[X^2] = \int_{-\infty}^{\infty}xp_\lambda(x) dx = \int_0^\infty \lambda x^2 e^{-\lambda x}dx 
+= [-x^2 e^{-\lambda x}]_0^\infty + 2\int_0^\infty xe^{-\lambda x}dx = \frac{2}{\lambda} \int_0^\infty \lambda x e^{-\lambda x}dx = \frac{2}{\lambda} \mathbb{E}[X] = \frac{2}{\lambda^2}
+$$
+Hence, $Var(X) = \mathbb{E}[X^2] - E[X]^2 = \frac{2}{\lambda ^2} - \frac{1}{\lambda ^2} = \frac{1}{\lambda ^2}$.
+
+----------------------
+
+*(Q)* Compute the cumulative distribution function and the quantile function for exponential random variables with parameter $\lambda$.
+
+*(A)* The cumulative distribution function is given by 
+$$
+F_\lambda(x) = \int_{-\infty}^xp_\lambda(t)dt 
+= \begin{cases}
+0 & if \quad x < 0 \\
+\int_0^x\lambda e^{-\lambda t}dt & if \quad x \geq 0
+\end{cases}
+$$
+Moreover, we have
+$$
+\int_0^x\lambda e^{-\lambda t}dt = \lambda \int_0^x e^{-\lambda t}dt = [-e^{-\lambda t}]_0^x = 1 - e^{-\lambda x}
+$$
+Thus, the cumulative distribution function is given by 
+$$
+F_\lambda(x) = \begin{cases}
+0 & if \quad x < 0 \\
+1 - e^{-\lambda x} & if \quad x \geq 0
+\end{cases}
+$$
+The quantile function is given by 
+$$
+F^{-1}_\lambda (p) := inf\{x \in R: F_\lambda(x) \leq p\}
+= \begin{cases}
+-\infty & if \quad p = 0 \\
+-\frac{1}{\lambda} ln(1-p) & if \quad p \in (0, 1]
+\end{cases}
+$$
+
+-----------------------
+
+*(Q)* Now implement a function called my_cdf_exp(). The function my_cdf_exp() should take as input two numbers $x \in R$ and $\lambda > 0$ and output the value of the cumulative distribution function $F_X (x)$ where $X$ is an exponential random variable with rate parameter $\lambda$.
+
+*(A)*
+```{r}
+my_cdf_exp <- function(x, lambda){
+  if(x < 0){
+    return(0)
+  }else{
+    return(1 - exp(-lambda * x))
+  }
+}
+```
+
+----------------------
+
+*(Q)* Check your function my_cdf_exp() gives rise to the following output:
+```{r}
+lambda <- 1/2
+map_dbl(.x = seq(-1, 4), .f = ~my_cdf_exp(x = .x, lambda = lambda))
+
+```
+
+-----------------------
+
+*(Q)* Type ?pexp into your R console to learn more about R’s inbuilt cumulative distribution function for the exponential distribution. We can now confirm that our when $\lambda = 1/2$ as follows:
+```{r}
+test_inputs <- seq(-1, 10, 0.1)
+my_cdf_output <- map_dbl(.x = test_inputs, .f = ~my_cdf_exp(x = .x, lambda = lambda))
+inbuilt_cdf_output <- map_dbl(.x = test_inputs, .f = ~pexp(q = .x, rate = lambda))
+
+all.equal(my_cdf_output, inbuilt_cdf_output)
+```
+
+Next implement a function called my_quantile_exp(). The function my_quantile_exp() should take as input
+two arguments $p \in [0,1]$ and $\lambda > 0$ and output the value of the quantile function $F^{-1}_X(p)$ where $X$ is an exponential random variable with rate parameter $\lambda$.
+
+*(A)*
+```{r}
+my_quantile_exp <- function(p, lambda){
+  
+  q <- -(1/lambda)*log(1-p)
+  
+  return(q)
+}
+```
+
+----------------
+
+*(Q)* Once you have implemented your function compare with R’s inbuilt qexp function using the same procedure as we used above for the cumulative distribution function for inputs $\lambda = 1/2$ and $p \in \{0.01, 0.02, 0.03, . . . , 0.99\}$. Note that you don’t need to consider inputs $p \leq 0$ or $p \geq 1$ here.
+
+*(A)*
+```{r}
+test_inputs <- seq(0.01, 0.99, 0.01)
+lambda <- 1/2
+my_quantile_output <- map_dbl(.x = test_inputs, .f = ~my_quantile_exp(p = .x, lambda = lambda))
+inbuilt_quantile_output <- map_dbl(.x = test_inputs, .f = ~qexp(p = .x, rate = lambda))
+
+all.equal(my_quantile_output, inbuilt_quantile_output)
+```
+
+----------------
+
+### 6 Poisson distribution
+
+Many discrete random variables have distributions supported on a finite set (eg. Bernoulli, Binomial). Poisson random variables are a family of discrete random variables with distributions supported on 
+$\mathbb{N}_0 := \{0, 1, 2, 3, · · · \}$. Poisson random variables are frequently used to model the number of events which occur at a constant rate in situations where the occurance of individual events are independent. For example, we might use the Poisson distribution to model the number of mutations of a given strand of DNA per time unit, or the number of customers who arrive at store over the course of a day. Hence, like Binomial random variable, Poisson random variables can be used to model count data. The key difference is that Poisson random variables apply more readily to situations where there is no natural upper bound on the total count.
+
+Take $\lambda > 0$. The Poisson random variable $X$ with parameter $\lambda$ has probability mass function $p_\lambda : R \to (0, \infty)$ defined by
+$$
+p_\lambda(x) = \begin{cases}
+\frac{\lambda^xe^{-\lambda}}{x!} & for \quad x \in \mathbb{N}_0\\
+0 & for \quad x \in \mathbb{N}_0
+\end{cases}
+$$
+
+--------------
+
+*(Q)* Show that pλ is a well-defined probability mass function. More precisely:
+
+1. $p_\lambda(x) \geq 0$ for all $x \in \mathbb{N}_0$
+
+2. $\sum_{x \in \mathbb{R}}p_\lambda(x) = 1$
+
+*(A)*
+
+1. First note that $p_\lambda(x) \geq 0$ for all $x \in \mathbb{N}$ since $e^z \geq 0$
+
+2. We show $\sum_{x \in \mathbb{R}}p_\lambda(x) = 1$ as follows:
+$$
+\sum_{x \in \mathbb{R}}p_\lambda (x) = \sum_{x \in \mathbb{N}_0}p_\lambda (x) = \sum_{x = 0}^{\infty} \frac{\lambda ^x e^{-\lambda}}{x!} = e^{-\lambda}(\sum_{x = 0}^{\infty} \frac{\lambda^x}{x!}) = e ^{-\lambda} \cdot e^\lambda= 1
+$$
+where we use the power series for the exponential function.
+
+------------
+
+*(Q)* Compute both the expectation and the variance of a Poisson random variable $X$ with probability mass function $p_\lambda$.
+
+*(A)* 
+
+1. First compute the expectation:
+$$
+\mathbb{E}[X] = \sum_{x \in \mathbb{R}}x \cdot p_\lambda(x) = \sum_{k = 0}^{\infty}k \cdot p_\lambda(k) = \sum_{k = 1}^{\infty}k \cdot p_\lambda(k) = \sum_{k = 1}^{\infty}k \cdot \frac{\lambda^ke^{-\lambda}}{k!} = 
+\sum_{k = 1}^{\infty}\frac{\lambda^ke^{-\lambda}}{(k-1)!} = \lambda \cdot e^{-\lambda} \cdot \sum_{j = 0}^{\infty}\frac{\lambda^j}{j!} = \lambda
+$$
+2. Then We have
+$$
+\mathbb{E}[X^2] = \sum_{x \in \mathbb{R}} x^2 \cdot p_\lambda(x) = \sum_{k = 0}^ \infty k^2 \cdot p_\lambda(k) = \sum_{k = 1}^ \infty k^2 \cdot p_\lambda(k) = \sum_{k = 1}^ \infty k^2 \cdot \frac{\lambda^k e^{-\lambda}}{k!} = \sum_{k = 1}^\infty k \cdot \frac{\lambda^k e^{-\lambda}}{(k-1)!} = \lambda \sum_{j = 0}^infty (j + 1) \frac{\lambda^j e^{-\lambda}}{j!} = \lambda \cdot \sum_{j = 0}^\infty p_\lambda(j) = \lambda \cdot (\mathbb{E}[X] + 1) = \lambda (\lambda + 1).  
+$$
+Thus, $Var(X) = \mathbb{E}[X^2] - \mathbb{E}[X]^2 = \lambda$  
+
+------------------
+
+*(Q)* (**) Both Binomial and Poisson random variables can be used to model count data. Whilst Binomial random variables $Z \thicksim Binom(n,p)$ apply to situations where there is an upper bound $n$ on the number of successes, Poisson random variables apply to situations where there is no natural upper bound on the total count. In fact the Poisson random variable $X$ can be viewed as an approximation to Binomial random variable with very large $n$ and $np \approx \lambda$. This approximation is often used for computational reasons in situations where we want to model a Binomial random variable with a very large $n$ and a small value of $p$.
+
+As an optional extra, show the following: Suppose we fix $\lambda \in \mathbb{R}$ and a Poisson random variable $X$ with expectaton $\lambda$, and take probabilities $p_n = \frac{\lambda}{n}$ for each $n \in \mathbb{N}$, and Binomial random variables $Z \thicksim Binom(n,p_n)$. Then for each $k \in \mathbb{N}_0 = \{0,1,2,3,...\}$ we have
+$$
+\lim_{n \to \infty}\mathbb{P}(Z_n = k) = \mathbb{P}(X = \lambda) = \frac{\lambda^k e^{-\lambda}}{k!}
+$$
+You may want to use the fact that for any real number $t \in \mathbb{R}$ we have $\lim_{n \to \infty}(1+\frac{t}{n})^n = e^t$.
+
+*(A)* We use the formula for the probability mass function for $Z_n$ as follows,
+$$
+\lim_{n \to \infty}\mathbb{Z_n = k} = \lim_{n \to \infty}\left\{ \binom{n}{k} p_n^k (1-p_n)^{n-k} \right\}= \lim_{n \to \infty} \left\{ \frac{n!}{(n-k)!k!} \cdot \left( \frac{\lambda}{n} \right)^k \left( 1 - \frac{\lambda}{n} \right)^{n-k} \right\}= \lim_{n \to \infty} \left\{ \frac{n^k}{k!} \cdot \left( \frac{\lambda}{n} \right)^k \left(1- \frac{\lambda}{n} \right)^n  \right\} = \frac{\lambda^k e^{-\lambda}}{k!},
+$$
+as required.
+
+---------------
+
+### 7 (**) The law of large numbers and Hoeffding’s inequality
+
+*(Q)* Prove the following version of the weak law of large numbers.
+
+**Theorem (A law of large numbers).** Let $X: \Omega \to \mathbb{R}$ be a random variable with a well-defined expectation $\mu:= \mathbb{E}(X)$ and variance $\sigma^2:= Var(X)$. Let $X_1,...,X_n: \Omega \to \mathbb{R}$ be a sequence of independent copies of $X$.
+
+Then for all $\varepsilon > 0$,
+$$
+\lim_{n \to \infty} \mathbb{P} \left( \left| \frac{1}{n} \sum_{i = 1}^n X_i - \mu \right| \geq \varepsilon \right) = 0
+$$
+You may want to begin by looking up Chebyshev’s inequality.
+
+------------------
+
+*(Q)* Now investigate Hoeffding’s for sample averages of bounded random variables. How does this compare to the law of large numbers?
+
+
+
