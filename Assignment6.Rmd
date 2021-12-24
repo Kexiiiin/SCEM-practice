@@ -1,0 +1,72 @@
+---
+title: "Assignment6"
+author: "Kexin Wu"
+date: "13/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### 1 A Gaussian model for Red tailed hawks
+
+In this question we will fit a Gaussian model to a Red-Tailed hawk data set. 
+
+First load the Hawks data set as follows:
+```{r}
+library(Stat2Data)
+data("Hawks")
+library(tidyverse)
+```
+
+----------
+
+**(Q)** Now use your data wrangling skills to filter extract a subset of the Hawks data set so that every Hawk belongs to the “Red-Tailed” species, and extract the “Weight”, “Tail” and “Wing” columns. The returned output should be a data frame called “RedTailedDf” with three numerical columns and 577 examples.
+
+**(A)** 
+```{r}
+RedTailedDf <- Hawks %>%
+  filter(Species == "RT") %>%
+  select(Weight, Tail, Wing)
+```
+
+---------
+
+**(Q)** Display the first five rows of the “RedTailedDf”.
+
+**(A)**
+```{r}
+RedTailedDf %>% head(5)
+```
+
+---------
+
+We now model the vector of tail lengths from “RedTailedDf” as a sequence $X_1, · · · , X_n \thicksim \mathcal{N} (\mu_0, \sigma_0^2)$ consisting of independent and identically distributed with unknown population mean $\mu_0$ and population variance $\sigma_0^2$.
+
+The maximum likelihood estimates for $\mu_0$ is given by $\hat{\mu}_{MLE} = \frac{1}{n} \sum_{i = 1}^n X_i$ and the maximum likelihood estimate for $\sigma_0^2$ is given by $\hat{\sigma}_{MLE}^2 = \frac{1}{n} \sum_{i = 1}^n (X_i - \hat{\mu}_{MLE})^2$.
+
+**(Q)** Apply the maximum likelihood method to compute estimates $\hat{\mu}_{MLE}$ for $\mu_0$ and $\hat{\sigma}_{MLE}^2$ for $\sigma_0^2$.
+
+**(A)**
+```{r}
+tail_RT <- RedTailedDf %>% pull(Tail)
+n <- length(tail_RT)
+
+mu_mle_RT <- mean(tail_RT, na.rm = TRUE)
+var_mle_RT <- var(tail_RT, na.rm = TRUE) * ((n - 1)/ n) 
+## Since we need to compute the sample variance, we should use (n-1)/n
+sigma_mle_RT <- sqrt(var_mle_RT)
+
+mu_mle_RT
+sigma_mle_RT
+```
+
+---------------
+
+**(Q)** Next generate a plot which compares the probability density function for your fitted Gaussian model for the tail length of the Red-Tailed hawks with a kernel density plot. 
+
+**(A)** 
+```{r}
+
+```
