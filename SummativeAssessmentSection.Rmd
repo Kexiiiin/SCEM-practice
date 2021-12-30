@@ -477,15 +477,13 @@ ggplot(simulation_X, aes(x = sample_avg)) +
 **(j.A)**
 ```{r}
 sample_expection <- simulation_X %>%
-  select(sample_avg) %>%
-  unlist() %>%
+  pull(sample_avg) %>%
   mean(na.rm = TRUE)
 
 sample_expection %>% round(digits = 4)
 
 sample_variance <- simulation_X %>%
-  select(sample_avg) %>%
-  unlist() %>%
+  pull(sample_avg) %>%
   var(na.rm = TRUE)
 
 sample_variance %>% round(digits = 4)
@@ -592,13 +590,82 @@ $$
 
 **(c.Q)** Suppose that $X_1, · · · , X_n$ is an i.i.d sample from the exponential distribution with an unknown parameter $\lambda_0 > 0$. What is the maximum likelihood estimate $\hatλ_{MLE}$ for $\lambda_0$?
 
+**(c.A)** The likelihood function $\mathbb{L}(\lambda)$ based upon the sample $X_1, · · · , X_n$ is:
+$\mathbb{L}(\lambda) = \prod_{i = 1}^n f_\lambda(X_i) = \lambda ^ n e ^{-n \lambda \overline{X}}$.
+
+Hence, we have $log\mathbb{L}(\lambda) = log (\lambda ^ n e ^{-n \lambda \overline{X}} ) = n log \lambda - n \lambda \overline{X}$, and $\frac{\partial}{\partial \lambda} = \frac{n}{\lambda} - n \overline{X}$.
+
+Since $\overline{X} = \mathbb{E}[X] = \frac{1}{\lambda}$, we have $\frac{\partial}{\partial \lambda}\mathbb{L}(\lambda) = \frac{n}{\lambda} - n \overline{X} = 0$
+
+So, we have the maximum likelihood estimate for $\lambda_0$ is given by $\hatλ_{MLE} = \frac{1}{\overline{X}}$.
+
 
 **(d.Q)** Conduct a simulation study to explore the behavior of the maximum likelihood estimator $\hatλ_{MLE}$ for $\lambda_0$ on simulated data $X_1, · · · , X_n$ generated using the exponential distribution. Consider a setting in which $\lambda_0 = 0.01$ and generate a plot of the mean squared error as a function of the sample size. You should consider a sample sizes between $5$ and $1000$ in increments of $5$, and consider $100$ trials per sample size. For each trial of each sample size generate a random sample $X_1, · · · , X_n$ of the exponential distribution with parameter $\lambda_0 = 0.01$, then compute the maximum likelihood estimate $\hatλ_{MLE}$ for $\lambda_0$ based upon the corresponding sample. Display a plot of the mean square error of $\hatλ_{MLE}$ as an estimator for $\lambda_0$ as a function of the sample size.
 
+**(d.A)**
+```{r}
+set.seed(0)
+min_sample_size <- 5
+max_simple_size <- 1000
+sample_size_inc <- 5
+num_trials_per_sample_size <- 100
+lambda_0 <- 0.01
+
+exponential_simulation_df <- crossing(trial = seq(num_trials_per_sample_size),
+                                      sample_size = seq(min_sample_size, max_simple_size, sample_size_inc)) %>%
+  # create data frame of all pairs of sample_size and trial
+  mutate(simulation = pmap(.l = list(trial, sample_size),
+                           .f = ~rexp(.y, rate = lambda_0))) %>%
+  # simulate sequences of Gaussian random variables
+  mutate(lambda_mle = map_dbl(.x = simulation, .f = mean)) %>%
+  # compute the sample sd
+  group_by(sample_size) %>%
+  summarise(msq_error = mean((lambda_mle - lambda_0)^2))
+
+exponential_simulation_df %>%
+  ggplot(aes(x = sample_size, y = msq_error)) +
+  geom_smooth() +
+  theme_bw() +
+  xlab("Sample size") + ylab("Mean square error")
+```
+
 Now download the csv file entitled “birds_data_EMATM0061” from the Assessment section within Blackboard. The csv file contains synthetic data on arrival times for birds at a bird feeder, collected over a five week period. The species of bird and their arrival time are recorded.
+
+```{r}
+file_name <- "bird_data_EMATM0061"
+
+birds_data_original <- read.csv(paste0(folder_name, "/", file_name, ".csv"))
+```
 
 Let’s model the sequence of time differences as independent and identically distributed random variables from an exponential distribution. More, precisely, let $Y_1, Y_2, . . . , Y_{n+1}$ denote the sequence of arrival times in seconds. Construct a new sequence of random variables $X_1, ..., X_n$ where $X_i = Y_{i+1} − Y_i$ for each $i = 1,..., n$. Model the sequence of differences in arrival times $X_1,...,X_n$ as independent and identically distributed exponential random variables.
 
+```{r}
+birds_data <- birds_data_original %>%
+  mutate(time_diffs = lead(Time) - Time)
+
+time_diffs <- birds_data %>% pull(time_diffs)
+```
+
 **(e.Q)** Compute and display the maximum likelihood estimate of the rate parameter $\hatλ_{MLE}$.
 
+**(e.A)**
+```{r}
+lambda_MLE <- 1 / mean(time_diffs, na.rm = TRUE)
+
+lambda_MLE
+```
+
 **(f.Q)** Can you give a confidence interval for $\lambda_0$ with a confidence level of $95\%$?
+
+**(f.A)** 
+```{r}
+alpha <- 0.05
+sample_size <- length(time_diffs)
+
+confidence_interval_l <- qchisq(p = alpha / 2, df = 2 * sample_size)
+confidence_interval_r <- qchisq(p = 1 - alpha / 2, df = 2 * sample_size)
+confidence_interval <- c(confidence_interval_l / 2 / sum(time_diffs, na.rm = TRUE), confidence_interval_r / 2 / sum(time_diffs, na.rm = TRUE))
+confidence_interval
+
+```
+
