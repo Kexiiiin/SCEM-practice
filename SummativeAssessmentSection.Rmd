@@ -403,7 +403,7 @@ $$
 
 **(e.A)** The population variance of the random variable $\overline{X}$ is:
 $$
-Var(\overline{X}) = \alpha + 4\beta + 25\gamma -\alpha^2 - 4\beta^2 - 25\gamma^2 - 4\alpha \beta - 10\alpha \gamma - 20\beta \gamma
+Var(\overline{X}) = \frac{\alpha + 4\beta + 25\gamma -\alpha^2 - 4\beta^2 - 25\gamma^2 - 4\alpha \beta - 10\alpha \gamma - 20\beta \gamma}{n}
 $$
 
 **(f.Q)** Create a function called sample_X_0125() which takes as inputs $\alpha, \beta, \gamma$ and $n$ and outputs a sample $X_1,...,X_n$ of independent copies of $X$ where $\mathbb{P}(X = 1) = \alpha$, $\mathbb{P}(X = 2) = \beta$, $\mathbb{P}(X = 5) = \gamma$ and $P(X \notin \{0,1,2,5\}) = 0$.
@@ -456,8 +456,149 @@ beta <- 0.2
 gamma <- 0.3
 n <- 100
 
-simulation_X <- data.frame()
+simulation_X <- data.frame(trial = 1: num_trials) %>%
+  mutate(sample_X = map(.x = trial, ~sample_X_0125(alpha, beta, gamma, n))) %>% 
+  mutate(sample_avg = map_dbl(.x = sample_X, ~mean(.x)))
+
+```
+
+**(i.Q)** Generate a histogram plot which displays the behavior of the sample mean within your simulation study. Use a bin width of $0.02$. The height of each bar should correspond to the number of times the sample mean took on a value within the corresponding bin.
+
+**(i.A)** 
+```{r}
+ggplot(simulation_X, aes(x = sample_avg)) + 
+  xlab("Sample Average") + 
+  geom_histogram(binwidth = 0.02) + 
+  ylab("Count")
+```
+
+**(j.Q)** What is the numerical value of the expectation $\mathbb{E}(\overline{X})$ in your simulation study? What is the numerical value of the variance $Var(\overline{X})$? Give your answers to 4 decimal places.
+
+**(j.A)**
+```{r}
+sample_expection <- simulation_X %>%
+  select(sample_avg) %>%
+  unlist() %>%
+  mean(na.rm = TRUE)
+
+sample_expection %>% round(digits = 4)
+
+sample_variance <- simulation_X %>%
+  select(sample_avg) %>%
+  unlist() %>%
+  var(na.rm = TRUE)
+
+sample_variance %>% round(digits = 4)
 ```
 
 
+Let $f_{\mu, \sigma}: \mathbb{R} \to [0, \infty)$ be the probability density function of a Gaussian random variable with distribution $\mathcal{N}(\mu, \sigma^2)$, so that the population mean is $\mu$ and the population variance is $\sigma^2$.
 
+**(k.Q)** Now append to your histogram plot an additional curve of the form $x \mapsto 200 \cdot f_{\mu, \sigma}(x)$, which displays a rescaled version of the probability density function of a Gaussian random variable with population mean $\mu = \mathbb{E}(\overline{X})$ and population variance $\mu^2 = Var(\overline{X})$. You may wish to consider your rescaled density $x \mapsto 200 \cdot f_{\mu, \sigma}(x)$ displayed for a sequence of $x$-values between $\mu − 4 \cdot \sigma$ and $\mu + 4\sigma$ in increments of $0.0001$. Make sure that the plot is well-presented and both the histogram and the rescaled density are clearly visible.
+
+**(k.A)**
+```{r}
+mu <- sample_expection
+sigma <- sample_variance
+sd <- sqrt(sigma)
+increment <- 0.0001
+x <- seq(mu - 4 * sd, mu + 4 * sd, increment)
+
+# create the Gaussian random distribution
+gaussian_sample_X <- data.frame(x = x, density = 200 * dnorm(x, mean = mu, sd = sd), var = sigma)
+
+colors <- c("Gaussian sample" = "red", "Histogram sample" = "blue")
+
+fill <- c("Gaussian sample" = "white", "Histogram sample" = "white")
+
+ggplot() + labs(x = "x", y = "Count") + theme_bw() + 
+  geom_line(data = gaussian_sample_X, 
+            aes(x, y = density, color = "Gaussian sample"), size = 1) +
+  # create plot of Gaussian density
+  geom_histogram(data = simulation_X, aes(x = sample_avg, color = "Histogram sample", fill = "Histogram sample"), binwidth = 0.02) +
+  scale_color_manual(name = "Legend", values = colors) + 
+  scale_fill_manual(name = "Legend", values = fill) 
+```
+
+**(k.Q)** Discuss the relationship between the histogram and the additional curve you observe. Can you explain what you observe?
+
+**(k.A)**
+
+
+-----------------
+
+### B.3
+
+In this question we shall use the exponential distribution to model time intervals between arrival times of birds at a bird feeder.
+
+Let $\lambda > 0$ be a positive real number. An exponential random variable $X$ with parameter $\lambda$ is a continuous random variable with density $p_\lambda(x): \mathbb{R} \to (0, \infty)$ defined by
+$$
+p_\lambda(x) := \begin{cases}
+0 & if \quad x < 0 \\
+\lambda e^{-\lambda e} & if \quad x \geq 0
+\end{cases}
+$$
+
+**(a.Q)** Give a formula for the the population mean and variance of an exponential random variable $X$ with parameter $\lambda$.
+
+**(a.A)** Using integration by parts we have,
+$$
+\mathbb{E}[X] = \int_{-\infty}^{\infty}xp_\lambda(x)dx = \int_0^\infty\lambda xe^{-\lambda x}dx
+= [x e^{-\lambda x}]_0^\infty + \int_0^\infty e^{-\lambda x}dx 
+= 0 + [-\frac{1}{\lambda}e^{-\lambda x}]_0^\infty = \frac{1}{\lambda}
+$$
+
+Using integration by parts again we have,
+$$
+\mathbb{E}[X^2] = \int_{-\infty}^{\infty}xp_\lambda(x) dx = \int_0^\infty \lambda x^2 e^{-\lambda x}dx 
+= [-x^2 e^{-\lambda x}]_0^\infty + 2\int_0^\infty xe^{-\lambda x}dx = \frac{2}{\lambda} \int_0^\infty \lambda x e^{-\lambda x}dx = \frac{2}{\lambda} \mathbb{E}[X] = \frac{2}{\lambda^2}
+$$
+Hence, $Var(X) = \mathbb{E}[X^2] - \mathbb{E}[X]^2 = \frac{2}{\lambda ^2} - \frac{1}{\lambda ^2} = \frac{1}{\lambda ^2}$.
+
+**(b.Q)** Give a formula for the cumulative distribution function and the quantile function for exponential random variables with parameter $\lambda$.
+
+**(b.A)** The cumulative distribution function is given by 
+$$
+F_\lambda(x) = \in
+t_{-\infty}^xp_\lambda(t)dt 
+= \begin{cases}
+0 & if \quad x < 0 \\
+\int_0^x\lambda e^{-\lambda t}dt & if \quad x \geq 0
+\end{cases}
+$$
+
+Moreover, we have
+$$
+\int_0^x\lambda e^{-\lambda t}dt = \lambda \int_0^x e^{-\lambda t}dt = [-e^{-\lambda t}]_0^x = 1 - e^{-\lambda x}
+$$
+
+Thus, the cumulative distribution function is given by 
+$$
+F_\lambda(x) = \begin{cases}
+0 & if \quad x < 0 \\
+1 - e^{-\lambda x} & if \quad x \geq 0
+\end{cases}
+$$
+
+The quantile function is given by 
+$$
+F^{-1}_\lambda (p) := inf\{x \in R: F_\lambda(x) \leq p\}
+= \begin{cases}
+-\infty & if \quad p = 0 \\
+-\frac{1}{\lambda} ln(1-p) & if \quad p \in (0, 1]
+\end{cases}
+$$
+
+
+**(c.Q)** Suppose that $X_1, · · · , X_n$ is an i.i.d sample from the exponential distribution with an unknown parameter $\lambda_0 > 0$. What is the maximum likelihood estimate $\hatλ_{MLE}$ for $\lambda_0$?
+
+
+**(d.Q)** Conduct a simulation study to explore the behavior of the maximum likelihood estimator $\hatλ_{MLE}$ for $\lambda_0$ on simulated data $X_1, · · · , X_n$ generated using the exponential distribution. Consider a setting in which $\lambda_0 = 0.01$ and generate a plot of the mean squared error as a function of the sample size. You should consider a sample sizes between $5$ and $1000$ in increments of $5$, and consider $100$ trials per sample size. For each trial of each sample size generate a random sample $X_1, · · · , X_n$ of the exponential distribution with parameter $\lambda_0 = 0.01$, then compute the maximum likelihood estimate $\hatλ_{MLE}$ for $\lambda_0$ based upon the corresponding sample. Display a plot of the mean square error of $\hatλ_{MLE}$ as an estimator for $\lambda_0$ as a function of the sample size.
+
+Now download the csv file entitled “birds_data_EMATM0061” from the Assessment section within Blackboard. The csv file contains synthetic data on arrival times for birds at a bird feeder, collected over a five week period. The species of bird and their arrival time are recorded.
+
+Let’s model the sequence of time differences as independent and identically distributed random variables from an exponential distribution. More, precisely, let $Y_1, Y_2, . . . , Y_{n+1}$ denote the sequence of arrival times in seconds. Construct a new sequence of random variables $X_1, ..., X_n$ where $X_i = Y_{i+1} − Y_i$ for each $i = 1,..., n$. Model the sequence of differences in arrival times $X_1,...,X_n$ as independent and identically distributed exponential random variables.
+
+**(e.Q)** Compute and display the maximum likelihood estimate of the rate parameter $\hatλ_{MLE}$.
+
+**(f.Q)** Can you give a confidence interval for $\lambda_0$ with a confidence level of $95\%$?
