@@ -1,0 +1,141 @@
+---
+title: "SummativeAssessmentSectionC"
+author: "Kexin Wu"
+date: "02/01/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+## Section C (40 marks)
+
+
+Investigate a particular hypothesis test eg. a Binomial test, a paired Student’s t test, an unpaired Student’s t test, an F test for ANOVA, a Mann-Whitney U test, a Wilcoxon signed-rank test, a Kruskal Wallis test, or some other test you find interesting.
+
+Note that clarity of presentation is highly important. In addition, you should aim to demonstrate a depth of understanding. For this hypothesis test you are asked to do the following:
+
+----------
+
+### 1. the Description of Binomial Test
+
+**(Q)** Give a clear description of the hypothesis test including the details of the test statistic, the underlying assumptions, the null hypothesis and the alternative hypothesis. Give an intuitive explanation for why the test statistic is useful in distinguishing between the null and the alternative.
+
+**(A)** Firstly, we suppose to make a prediction of Bernoulli random variables, (eg. rolling the dice), we generate the model $X_1, X_2, ..., X_n$ where 
+$$
+X_i = \begin{cases}
+1 & if \; the \; \mathcal{i}th \; prediction \; is \; correct \\
+0 & if \; the \; \mathcal{i}th \; prediction \; is \; incorrect \\
+\end{cases}
+$$
+
+And the model $X_1, ... , X_n \sim \mathcal{B}(q)$ is Bernoulli random variables with $q \in [0, 1]$.
+
+Secondly we make the null hypothesis $H_0 : q = q_0$ and the alternative hypothesis $H_1 : q \neq q_0$, where $q_0$ is a user-defined value between 0 and 1, and choose a significant level $\alpha$ (Usually opt $\alpha = 0.05$). A natural test statistic is the number of successes $Z = X_1 + ... + X_n$, which has Binomial distribution $Z \sim BINOM(n, q)$. 
+
+So we have the probability mass function:
+$$
+\mathbb{P}(Z = k) = \frac{n!}{(n-k)!} \cdot q^k \cdot (1 - q)^{n-k}
+$$
+
+And thirdly, we should compute the p-value. The p-value is the probability under the null hypothesis that the test statistic takes a value as extreme or more extreme than the observed value.
+
+The p-value is the probability of attaining a test-statistic at least as extreme as $\tau$ under the null hypothesis, where let $\tau = \{i: \mathbb{P}(X = i) \leq \mathbb{P}(X = k)\}$.
+
+If $\tau > n \cdot q$, $p := 2 \cdot \mathbb{P}_{H_0}(Z \geq \tau) = 2 \cdot \sum_{k = \tau}^n \frac{n!}{(n-k)!} \cdot q^k \cdot (1 - q)^{n-k}$.
+
+If $\tau \leq n \cdot q$, $p := 2 \cdot \mathbb{P}_{H_0}(Z < \tau) = 2 \cdot \sum_{k =0}^ \tau \frac{n!}{(n-k)!} \cdot q^k \cdot (1 - q)^{n-k}$.
+
+If the p-value is below the significance level $\alpha$, we reject the null hypothesis $H_0$ and conclude that $H_1$, where $q \neq q_0$, otherwise we reject the alternative hypothesis $H_1$ and conclude that $H_0$, where $q = q_0$.
+
+
+------------
+
+### 2. Simulation Study
+
+**(Q)** Perform a simulation study to investigate the probability of type I error under the null hypothesis for your hypothesis test. Your simulation study should involve randomly generated data which conforms to the null hypothesis. Compare the proportion of rounds where a Type I error is made with the significance level of the test.
+
+**(A)** Suppose we take a test of rolling a dice, and we have the null hypothesis: $H_0: q= 1/6$ and the alternative hypothesis: $H_1: q \neq 1/6$, then we choose the significance level $\alpha = 0.05$. Firstly randomly generate data which conforms to the null hypothesis which is $H_0: q = 1/6$. Secondly use the binom.test function to compute the p-value, which is the proportion of rounds where a Type $\mathrm{1}$ error.
+```{r}
+set.seed(1001)
+trial_num <- 100
+alpha <- 0.05
+sample_size <- 10
+q <- 1/6
+sample_success <- rbinom(trial_num, sample_size, q)
+
+binom_p_value <- function(x, n, p) {
+    p_value <- binom.test(x, n, p, alternative = "two.sided")$p.value
+    return(p_value)
+}
+
+sample_test <- data.frame(num = seq(1, 100), num_success = sample_success) %>%
+  rowwise() %>%
+  # generate the p_value of each row
+  mutate(p_value = binom_p_value(num_success, sample_size, q)) %>%
+  mutate(type_1_error = p_value < alpha)
+
+type_1_error <- sample_test %>% pull(type_1_error)
+
+# get the proportion of rounds where a Type I error is made
+proportion = sum(type_1_error = TRUE) / trial_num
+
+proportion
+```
+
+ Now we have the proportion of rounds where a Type I error is made $0.01$ which is less than $\alpha$.
+ 
+-------------
+
+### 3. Application in Real_world Data
+
+**(Q)** Apply this hypothesis test to a suitable real-world data set of your choice (some places to find data sets are described below). Ensure that your chosen data set is appropriate for your chosen hypothesis test. For example, if your chosen hypothesis test is an unpaired t-test then your chosen data set must have at least one continuous variable and contain at least two groups. It is recommended that your data set for this task not be too large. You should explain the source and the structure of your data set within your report.
+
+**(A)**
+Firstly, choose the dataset from the real-world. Take the NBA stats dataset which I found in the keggle.com as my choice. The link of the dataset is https://www.kaggle.com/sumitrodatta/nba-aba-baa-stats. The dataset contains the players and teams information of NBA from 1947 to 2022. And from the dataset, I choose the *Player Per Game.csv* file, which shows players' information per game of different seasons from 1947 to 2022 and read it in R, then filter the player whose *player_id = 2187*. 
+
+Secondly, for binomnial test, carry out a statistical hypothesis test to test the hypothesis that $80\%$ of the free throws were successfully hit. Use a significance level of 0.05.
+
+```{r}
+file_name <- "NBA stats/Player Per Game"
+folder_name <- "/Users/wukexin/Desktop/SCEM/final_assessment"
+
+# read the player per game file and generate dataframe for it
+player_per_game_data <- read.csv(paste0(folder_name, "/", file_name, ".csv"))
+
+# Filter the player whose player_id = 2187
+player2187_per_game_data <- player_per_game_data %>%
+  filter(player_id == 2187) %>%
+  # Select the ft_per_game, fta_per_game and the ft_percent columns
+  select(season, player_id, player, fta_per_game, ft_per_game, ft_percent)
+
+player2187_per_game_data
+
+q <- 0.8 # make a hypothesis that 80% of the free throws were successfully hit
+ 
+# compute the sum of the free throws per game
+ft_per_game <- player2187_per_game_data %>% pull(ft_per_game)
+sum_ft <- sum(ft_per_game) %>% round()
+
+# compute the sum of the free throw attempts per game
+fta_per_game <- player2187_per_game_data %>% pull(fta_per_game)
+sum_fta <- sum(fta_per_game) %>% round()
+
+# Take the binom test of the ft_percent
+binom.test(sum_ft, sum_fta, q, alternative = "two.sided")
+```
+
+Then, we can get the p-value by binom.test() function, which is $0.04873$, which is less than the significance level $0.05$. Thus, we need to reject the hypothesis that $80\%$ of the free throws were successfully hit.
+
+--------------
+
+### Appropriateness for the Binomial Test
+
+**(Q)** Carefully discuss the appropriateness for your statistical test in this setting and how your hypotheses corre- spond to different aspects of the data set. You may want to use plots to demonstrate the validity of your underlying assumptions. Draw a statistical conclusion and report the value of your test statistic, the p-value and a suitable measure of effect size.
+
+**(A)**
